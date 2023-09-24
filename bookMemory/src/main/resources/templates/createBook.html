@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Book</title>
+</head>
+<body>
+<h1>책 정보 등록</h1>
+<form th:action="@{/book/create}" th:method="post">
+    <!-- 책 제목 입력 -->
+    <label for="title">제목:</label>
+    <input type="text" id="title" name="title" required><br>
+
+    <!-- 저자 입력 -->
+    <label for="author">저자:</label>
+    <input type="text" id="author" name="author" required><br>
+
+    <!-- 독서 시작일 입력 (선택사항) -->
+    <label for="readingStartDate">독서 시작일:</label>
+    <input type="date" id="readingStartDate" name="readingStartDate"><br>
+
+    <!-- 독서 종료일 입력 (선택사항) -->
+    <label for="readingEndDate">독서 종료일:</label>
+    <input type="date" id="readingEndDate" name="readingEndDate"><br>
+
+    <!-- 평가 입력 (선택사항) -->
+    <label for="rating">평점:</label>
+    <input type="number" id="rating" name="rating" min="1" max="5"><br>
+
+    <!-- 리뷰 입력 (선택사항) -->
+    <label for="review">리뷰:</label><br>
+    <textarea id="review" name="review" rows="4" cols="50" step="0.1"></textarea><br>
+
+    <!-- 메모 입력 (선택사항) -->
+    <label for="memo">메모:</label><br>
+    <textarea id="memo" name="memo" rows="4" cols="50"></textarea><br>
+
+    <!-- 즐겨찾기 여부 입력 (선택사항) -->
+    <label for="favoriteFlag">즐겨찾기 여부:</label>
+    <input type="checkbox" id="favoriteFlag" name="favoriteFlag"><br>
+
+    <!-- 정보 제출 버튼 -->
+    <button type="submit">등록</button>
+</form>
+</body>
+</html>
