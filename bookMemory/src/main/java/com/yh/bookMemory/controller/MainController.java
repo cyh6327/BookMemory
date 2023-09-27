@@ -1,10 +1,11 @@
 package com.yh.bookMemory.controller;
 
 import com.yh.bookMemory.dto.BookInfoDTO;
-import com.yh.bookMemory.dto.BookSentencesDTO;
 import com.yh.bookMemory.dto.PageRequestDTO;
-import com.yh.bookMemory.dto.PageResultDTO;
 import com.yh.bookMemory.entity.BookInfo;
+import com.yh.bookMemory.entity.BookSentences;
+import com.yh.bookMemory.repository.BookInfoRepository;
+import com.yh.bookMemory.repository.BookSentencesRepository;
 import com.yh.bookMemory.service.BookService;
 import lombok.extern.log4j.Log4j2;
 import org.jsoup.Jsoup;
@@ -24,6 +25,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 @Controller
 @RequestMapping("/book")
@@ -33,23 +37,42 @@ public class MainController {
     @Autowired
     BookService bookService;
 
+    @Autowired
+    BookInfoRepository bookInfoRepository;
+
+    @Autowired
+    BookSentencesRepository bookSentencesRepository;
+
     @GetMapping("/dashboard")
     public String dashboard(@ModelAttribute("requestDTO") PageRequestDTO requestDTO, Model model) throws IOException {
         log.info("dashboard.......");
 
-        getHtmlContent();
+        List<Long> list = LongStream.rangeClosed(1,1050).boxed().collect(Collectors.toList());
+        log.info("===========list"+list.toString());
 
-        PageRequestDTO pageRequestDTO = PageRequestDTO.builder().page(1).size(10).build();
-        PageResultDTO<BookInfoDTO, BookInfo> resultDTO = bookService.getAllBookList(pageRequestDTO);
+        int batchSize = 1000;
 
-        for(BookInfoDTO bookInfoDTO : resultDTO.getDtoList()) {
-            System.out.println(bookInfoDTO);
+        List<List<Long>> batches = IntStream.range(0, (list.size() + batchSize - 1) / batchSize)
+                .mapToObj(i -> list.subList(i * batchSize, Math.min((i + 1) * batchSize, list.size())))
+                .collect(Collectors.toList());
+
+        // batches 리스트에는 1000개씩 끊어진 리스트들이 저장됩니다.
+        for (List<Long> batch : batches) {
+            System.out.println(batch);
         }
-        log.info("resultDTO......."+resultDTO);
-        List<BookInfoDTO> bookList = resultDTO.getDtoList();
-        log.info("bookList......."+bookList.toString());
 
-        model.addAttribute("list", bookList);
+
+//        PageRequestDTO pageRequestDTO = PageRequestDTO.builder().page(1).size(10).build();
+//        PageResultDTO<BookInfoDTO, BookInfo> resultDTO = bookService.getAllBookList(pageRequestDTO);
+//
+//        for(BookInfoDTO bookInfoDTO : resultDTO.getDtoList()) {
+//            System.out.println(bookInfoDTO);
+//        }
+//        log.info("resultDTO......."+resultDTO);
+//        List<BookInfoDTO> bookList = resultDTO.getDtoList();
+//        log.info("bookList......."+bookList.toString());
+//
+//        model.addAttribute("list", bookList);
 
         return "/layout/index";
     }
@@ -65,10 +88,19 @@ public class MainController {
         log.info("detailPage...............");
         log.info("bookId..............."+bookId);
 
-        BookSentencesDTO dto = bookService.read(bookId);
-        log.info("BookSentencesDTO................"+dto);
+        List<BookSentences> bookSentencesList = bookSentencesRepository.findAll();
 
-        model.addAttribute("dto", dto);
+        List<String> modifiedSentences = bookSentencesList.stream()
+                .map(bookSentence -> bookSentence.getSentenceText().toString().replace("<br>", "\r\n"))
+                .collect(Collectors.toList());
+
+
+        model.addAttribute("list",modifiedSentences);
+//
+//        BookSentencesDTO dto = bookService.read(bookId);
+//        log.info("BookSentencesDTO................"+dto);
+//
+//        model.addAttribute("dto", dto);
 
         return "/bookDetail";
     }
@@ -97,7 +129,10 @@ public class MainController {
 //        return "redirect:/book/dashboard";
 //    }
 
-    public void getHtmlContent() throws IOException {
+
+
+    @PostMapping("/insertSentence")
+    public String getHtmlContent(Model model) throws IOException {
         ClassPathResource resource = new ClassPathResource("test.html");
         File input = resource.getFile();
         Document doc = null;
@@ -121,7 +156,7 @@ public class MainController {
 //        System.out.println("===========================================");
         //arr[i] = arr[i].replaceAll("(?<=\\S)\\s*(<(/)?br>)\\s*(?=\\S)", "$2<br>$3");
 
-        List<String> sentences = new ArrayList<>();
+        List<BookSentences> sentences = new ArrayList<>();
         for(int i=1; i<arr.length-1; i++) {
             //arr[i] = arr[i].replaceAll("(?<=\\S)\\s*(<(/)?br>)\\s*(?=\\S)", " $2<br>");
             System.out.println("===========================================");
@@ -130,10 +165,25 @@ public class MainController {
             arr[i] = arr[i].replaceAll("\\s*<br>", "<br>");
             System.out.println(arr[i]);
 
-            sentences.add(arr[i]);
+            BookInfo bookInfo = bookInfoRepository.getOne(1L);
+            log.info("===================target bookInfo"+bookInfo.toString());
+
+            BookSentences bookSentences = BookSentences.builder()
+                            .sentenceText(arr[i])
+                                    .favoriteFlag('N')
+                                            .bookInfo(bookInfo)
+                                                    .build();
+
+            log.info("========================bookSentences"+bookSentences.toString());
+
+            sentences.add(bookSentences);
+            log.info("========================bookSentences list"+sentences.toString());
         }
 
-        System.out.println(sentences.toString());
+        bookSentencesRepository.saveAll(sentences);
+
+        return "redirect:/book/bookDetail";
+
 //        for (String part : arr) {
 //            System.out.println(part);
 //            System.out.println("===============================");

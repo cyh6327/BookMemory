@@ -3,8 +3,6 @@ package com.yh.bookMemory.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Date;
-
 @Entity
 @Getter
 @Builder

@@ -1,7 +1,6 @@
 package com.yh.bookMemory.dto;
 
 import com.yh.bookMemory.entity.BookInfo;
-import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 

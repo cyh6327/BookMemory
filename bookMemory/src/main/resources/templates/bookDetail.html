@@ -6,5 +6,14 @@
 </head>
 <body>
 <h1>Book Detail Page</h1>
+<form th:action="@{/book/insertSentence}" th:method="post">
+    <button type="submit">문장 추가</button>
+</form>
+
+<ul th:each="item : ${list}">
+    <li>[[${item.sentenceText}]]</li>
+</ul>
+
+
 </body>
 </html>
