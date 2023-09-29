@@ -53,10 +53,10 @@ public class BookServiceImpl implements BookService {
         return new PageResultDTO<>(result,fn);
     }
 
-    @Override
-    public BookSentencesDTO read(Long bookId) {
-       //Optional<BookSentences> result = bookSentencesRepository.findById(bookId);
-       Optional<BookSentences> result = bookSentencesRepository.findByBookInfo_BookId(bookId);
-        return result.isPresent()? sentenceEntityToDto(result.get()) : null;
-    }
+//    @Override
+//    public BookSentencesDTO read(Long bookId) {
+//       //Optional<BookSentences> result = bookSentencesRepository.findById(bookId);
+//       Optional<BookSentences> result = bookSentencesRepository.findByBookInfo_BookId(bookId);
+//        return result.isPresent()? sentenceEntityToDto(result.get()) : null;
+//    }
 }

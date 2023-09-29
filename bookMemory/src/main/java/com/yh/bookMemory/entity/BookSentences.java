@@ -22,4 +22,8 @@ public class BookSentences {
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     private BookInfo bookInfo;
+
+    public BookSentences(String sentenceText) {
+        this.sentenceText = sentenceText;
+    }
 }

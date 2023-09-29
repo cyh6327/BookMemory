@@ -70,8 +70,9 @@
                         <div class="card-body p-4">
                             <div class="text-center">
                                 <!-- Product name-->
-                                <h5 class="fw-bolder">[[${dto.title}]]</h5>
+                                <a th:href="@{/book/detail(bookId = ${dto.bookId}, title = ${dto.title})}"><h5 class="fw-bolder">[[${dto.title}]]</h5></a>
                                 <p>[[${dto.author}]]</p>
+                                <p>[[${dto.genre}]]</p>
                                 <!-- Product reviews-->
                                 <div class="d-flex justify-content-center small text-warning mb-2">
                                     <div class="bi-star-fill"></div>

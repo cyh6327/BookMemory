@@ -2,8 +2,9 @@ package com.yh.bookMemory.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +32,7 @@ public class BookInfo {
     private Date readingEndDate;
 
     @Column
-    private Long rating;
+    private Double rating;
 
     @Column(columnDefinition = "TEXT")
     private String review;
@@ -41,4 +42,7 @@ public class BookInfo {
 
     @Column(length = 1)
     private Character favoriteFlag = 'N';
+
+    @Column
+    private String genre;
 }

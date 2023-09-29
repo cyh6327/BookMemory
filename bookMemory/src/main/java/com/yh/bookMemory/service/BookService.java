@@ -20,6 +20,7 @@ public interface BookService {
                 .review(dto.getReview())
                 .memo(dto.getMemo())
                 .favoriteFlag(dto.getFavoriteFlag())
+                .genre(dto.getGenre())
                 .build();
         return entity;
     }
@@ -35,6 +36,7 @@ public interface BookService {
                 .review(entity.getReview())
                 .memo(entity.getMemo())
                 .favoriteFlag(entity.getFavoriteFlag())
+                .genre(entity.getGenre())
                 .build();
         return dto;
     }
@@ -53,5 +55,5 @@ public interface BookService {
 
     PageResultDTO<BookInfoDTO, BookInfo> getAllBookList(PageRequestDTO requestDTO);
 
-    BookSentencesDTO read(Long bookId);
+//    BookSentencesDTO read(Long bookId);
 }
