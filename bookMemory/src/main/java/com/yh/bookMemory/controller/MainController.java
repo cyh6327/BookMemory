@@ -22,6 +22,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,6 +63,12 @@ public class MainController {
 
     @Autowired
     BookSentencesRepository bookSentencesRepository;
+
+    @Value("${spring.datasource.emailId}")
+    private String username;
+
+    @Value("${spring.datasource.emailPw}")
+    private String password;
 
     @GetMapping("/dashboard")
     public String dashboard(@ModelAttribute("requestDTO") PageRequestDTO requestDTO, Model model) throws IOException {
@@ -317,8 +324,8 @@ public class MainController {
         props.put("mail.smtp.starttls.enable", "true"); // TLS 사용 여부 (필요 시)
 
         // 계정 정보
-        String username = "cyh6327@gmail.com";
-        String password = "iiyf dpuk idze aipg";
+//        String username = "cyh6327@gmail.com";
+//        String password = "iiyf dpuk idze aipg";
 
         // 세션 생성
         Session session = Session.getInstance(props, new Authenticator() {
@@ -333,6 +340,7 @@ public class MainController {
             message.setFrom(new InternetAddress(username)); // 발신자 주소
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email)); // 수신자 주소
             message.setSubject("랜덤 문장 5개"); // 이메일 제목
+            message.setText("랜덤 문장 내용");
             //TODO: 문장 5개 셀렉트 해오기
             //pickRandomSentences()
             //message.setContent('', "text/html");
