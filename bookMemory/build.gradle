@@ -32,6 +32,10 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.1.4'
 	implementation 'com.google.firebase:firebase-admin:9.2.0'
+	// https://mvnrepository.com/artifact/com.sun.mail/jakarta.mail
+	implementation 'com.sun.mail:jakarta.mail:2.0.1'
+
+
 }
 
 tasks.named('test') {

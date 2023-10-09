@@ -8,6 +8,9 @@ import com.yh.bookMemory.entity.BookSentences;
 import com.yh.bookMemory.repository.BookInfoRepository;
 import com.yh.bookMemory.repository.BookSentencesRepository;
 import com.yh.bookMemory.service.BookService;
+import jakarta.mail.*;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import lombok.extern.log4j.Log4j2;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -29,6 +32,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -92,15 +98,15 @@ public class MainController {
         log.info("bookId..............."+bookId);
         log.info("title............."+title);
 
-        List<BookSentences> bookSentencesList = bookSentencesRepository.findByBookInfoBookId(bookId);
-        List<BookSentences> modifiedSentences = bookSentencesList.stream()
-                .map(bookSentence -> new BookSentences(bookSentence.getSentenceText().replace("<br>", "\r\n")))
-                .collect(Collectors.toList());
-
-        log.info("bookSentencesList............"+bookSentencesList.toString());
-
-        //TODO: 각 문장 앞에 별(favorite_flag) 추가하고 db업데이트 로직 구성
-        model.addAttribute("list",modifiedSentences);
+//        List<BookSentences> bookSentencesList = bookSentencesRepository.findByBookInfoBookId(bookId);
+//        List<BookSentences> modifiedSentences = bookSentencesList.stream()
+//                .map(bookSentence -> new BookSentences(bookSentence.getSentenceText().replace("<br>", "\r\n")))
+//                .collect(Collectors.toList());
+//
+//        log.info("bookSentencesList............"+bookSentencesList.toString());
+//
+//        //TODO: 각 문장 앞에 별(favorite_flag) 추가하고 db업데이트 로직 구성
+//        model.addAttribute("list",modifiedSentences);
 
         return "/bookDetail";
     }
@@ -156,7 +162,7 @@ public class MainController {
 
         String[] arr = withoutDiv.split("<hr>");
 
-        System.out.println("========================stentences[0]"+arr[0].toString());
+        //System.out.println("========================stentences[0]"+arr[0].toString());
         List<BookSentences> sentences = new ArrayList<>();
         for(int i=1; i<arr.length-1; i++) {
             //arr[i] = arr[i].replaceAll("(?<=\\S)\\s*(<(/)?br>)\\s*(?=\\S)", " $2<br>");
@@ -164,28 +170,86 @@ public class MainController {
             arr[i] = arr[i].replaceAll("</br>","<br>");
             arr[i] = arr[i].replaceAll("<br>\\s*", "<br>");
             arr[i] = arr[i].replaceAll("\\s*<br>", "<br>");
-            System.out.println(arr[i]);
+
+            String regex = ".*\\S+.*"; // 공백을 제외한 어떠한 글자라도 존재하는 패턴
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(arr[i]);
 
             BookInfo bookInfo = bookInfoRepository.getOne(bookId);
 
-            BookSentences bookSentences = BookSentences.builder()
-                    .sentenceText(arr[i])
-                    .favoriteFlag('N')
-                    .bookInfo(bookInfo)
-                    .build();
+            if(matcher.matches()) {
+                BookSentences bookSentences = BookSentences.builder()
+                        .sentenceText(arr[i])
+                        .favoriteFlag('N')
+                        .bookInfo(bookInfo)
+                        .build();
 
-            sentences.add(bookSentences);
+                sentences.add(bookSentences);
+            } else {
+                System.out.println("empty....................");
+            }
 
+            System.out.println("arr[i]....................."+arr[i]);
         }
-        log.info("========================bookSentences list"+sentences.toString());
+        //log.info("========================bookSentences list"+sentences.toString());
         bookSentencesRepository.saveAll(sentences);
 
         return "redirect:/book/detail?bookId="+bookId;
-
-//        for (String part : arr) {
-//            System.out.println(part);
-//            System.out.println("===============================");
-//        }
     }
 
+    @GetMapping("/sendEmail")
+    public String sendEmailPage() {
+        log.info("sendEmailPage..........................");
+        return "/sendEmail";
+    }
+
+    @PostMapping("/sendEmail")
+    public String sendEmail(String email) {
+        log.info("sendEmail.........................");
+        log.info("email........................."+email);
+
+        // SMTP 서버 설정
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com"); // SMTP 서버 주소
+        props.put("mail.smtp.port", "587"); // SMTP 포트 (587 또는 465)
+        props.put("mail.smtp.auth", "true"); // 인증 필요 여부
+        props.put("mail.smtp.starttls.enable", "true"); // TLS 사용 여부 (필요 시)
+
+        // 계정 정보
+        String username = "cyh6327@gmail.com";
+        String password = "iiyf dpuk idze aipg";
+
+        // 세션 생성
+        Session session = Session.getInstance(props, new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(username, password);
+            }
+        });
+
+        try {
+            // 이메일 메시지 생성
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(username)); // 발신자 주소
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email)); // 수신자 주소
+            message.setSubject("랜덤 문장 5개"); // 이메일 제목
+            //TODO: 문장 5개 셀렉트 해오기
+            //pickRandomSentences()
+            //message.setContent('', "text/html");
+
+            // 이메일 보내기
+            Transport.send(message);
+
+            System.out.println("이메일이 성공적으로 전송되었습니다.");
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            System.err.println("이메일 전송 중 오류가 발생했습니다.");
+        }
+
+        return "redirect:/book/dashboard";
+    }
+
+//    public pickRandomSentences() {
+//
+//    }
 }
+
