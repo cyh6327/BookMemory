@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="e3aa98c6-4ffa-4c9b-aebf-e286b38071c9" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CodeInsightWorkspaceSettings">
+    <option name="optimizeImportsOnTheFly" value="true" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="bookMemory" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+        <option value="HTML File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2VgzI7xRegEza2fjxhGxy05P7o1" />
+  <component name="ProjectViewState">
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "C:/SpringBoot-main/BookMemory/bookMemory/build.gradle",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "editor.preferences.import"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\workspace-springboot\bookMemory\public" />
+      <recent name="C:\SpringBoot-main\bookMemory\src\main\resources\html" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\workspace-springboot\bookMemory\src\main\resources\templates\layout" />
+      <recent name="C:\workspace-springboot\bookMemory\src\main\resources\static" />
+      <recent name="C:\workspace-springboot\bookMemory\src\main\resources" />
+      <recent name="C:\workspace-springboot\bookMemory\src\main\resources\templates" />
+      <recent name="C:\workspace-springboot\bookMemory\src\main\resources\layout" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.BookMemoryApplication">
+    <configuration name="BookMemoryApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.yh.bookMemory.BookMemoryApplication" />
+      <module name="bookMemory.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.yh.bookMemory.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookInfoRepositoryTests.insertBookInfoTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="bookMemory.test" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.yh.bookMemory.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.yh.bookMemory" />
+      <option name="MAIN_CLASS_NAME" value="com.yh.bookMemory.BookInfoRepositoryTests" />
+      <option name="METHOD_NAME" value="insertBookInfoTest" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookSentencesRepositoryTests.findBookSentencesTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="bookMemory.test" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.yh.bookMemory.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.yh.bookMemory" />
+      <option name="MAIN_CLASS_NAME" value="com.yh.bookMemory.BookSentencesRepositoryTests" />
+      <option name="METHOD_NAME" value="findBookSentencesTest" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookSentencesRepositoryTests.insertBookSentencesTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="bookMemory.test" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.yh.bookMemory.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.yh.bookMemory" />
+      <option name="MAIN_CLASS_NAME" value="com.yh.bookMemory.BookSentencesRepositoryTests" />
+      <option name="METHOD_NAME" value="insertBookSentencesTest" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookServiceTests.testCreate" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="bookMemory.test" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.yh.bookMemory.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.yh.bookMemory" />
+      <option name="MAIN_CLASS_NAME" value="com.yh.bookMemory.BookServiceTests" />
+      <option name="METHOD_NAME" value="testCreate" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.BookMemoryApplication" />
+        <item itemvalue="JUnit.BookServiceTests.testCreate" />
+        <item itemvalue="JUnit.BookSentencesRepositoryTests.findBookSentencesTest" />
+        <item itemvalue="JUnit.BookSentencesRepositoryTests.insertBookSentencesTest" />
+        <item itemvalue="JUnit.BookInfoRepositoryTests.insertBookInfoTest" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="e3aa98c6-4ffa-4c9b-aebf-e286b38071c9" name="Changes" comment="" />
+      <created>1695272428921</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1695272428921</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>
