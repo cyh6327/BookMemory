@@ -16,6 +16,7 @@
         <script th:href="@{https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js}"></script>
         <!-- Core theme JS-->
         <script th:href="@{/js/scripts.js}"></script>
+        <script th:href="@{/js/main.js}"></script>
     </head>
     <body>
     <!-- Navigation-->
@@ -42,11 +43,11 @@
                         <i class="fa-duotone fa-book"></i>
                         책 추가
                     </button>
-                    <button class="btn btn-outline-dark" th:onclick="|location.href='@{/book/sendEmail}'|">
+                    <button class="btn btn-outline-dark" th:onclick="|location.href='@{/email/send}'|">
                         <i class="fa-duotone fa-book"></i>
                         랜덤 문장 전송
                     </button>
-                    <button class="btn btn-outline-dark" th:onclick="|location.href='@{/book/login}'|">
+                    <button class="btn btn-outline-dark" th:onclick="|location.href='@{/login}'|">
                         로그인
                     </button>
                     <p>[[${statusCode}]]</p>
@@ -71,14 +72,14 @@
                     <div class="card h-100">
                         <div class="badge bg-dark text-white position-absolute bi-star-fill" style="top: 0.5rem; right: 0.5rem"></div>
                         <!-- Product image-->
-                        <a th:href="@{/book/detail(bookId = ${dto.bookId})}">
+                        <a th:href="@{/book/detail/{bookId}(bookId = ${dto.bookId})}">
                             <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..."/>
                         </a>
                         <!-- Product details-->
                         <div class="card-body p-4">
                             <div class="text-center">
                                 <!-- Product name-->
-                                <a th:href="@{/book/detail(bookId = ${dto.bookId}, title = ${dto.title})}"><h5 class="fw-bolder">[[${dto.title}]]</h5></a>
+                                <a th:href="@{/book/detail/{bookId}(bookId = ${dto.bookId})}"><h5 class="fw-bolder">[[${dto.title}]]</h5></a>
                                 <p>[[${dto.author}]]</p>
                                 <p>[[${dto.genre}]]</p>
                                 <!-- Product reviews-->

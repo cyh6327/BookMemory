@@ -5,16 +5,17 @@
     <title>Book Detail Page</title>
 </head>
 <body>
-<h1>Book Detail Page</h1>
+<h1>[[${bookInfo.title}]]</h1>
+
 <form th:action="@{/book/insertSentence}" th:method="post">
     <button type="submit">문장 추가</button>
 </form>
 
-<form th:action="@{/book/insertSentenceFromFile(bookId = ${param.bookId}, title = ${param.title})}" th:method="post">
+<form th:action="@{/book/sentence/file/{bookId}/{title}(bookId = ${bookId}, title = ${bookInfo.title})}" th:method="post">
     <button type="submit">파일로 문장 추가</button>
 </form>
 
-<ul th:each="item : ${list}">
+<ul th:each="item : ${sentenceList}">
     <li>[[${item.sentenceText}]]</li>
 </ul>
 

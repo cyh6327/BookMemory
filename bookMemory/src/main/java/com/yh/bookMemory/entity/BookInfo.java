@@ -40,6 +40,7 @@ public class BookInfo {
     @Column(columnDefinition = "TEXT")
     private String memo;
 
+    @Builder.Default
     @Column(length = 1)
     private Character favoriteFlag = 'N';
 
