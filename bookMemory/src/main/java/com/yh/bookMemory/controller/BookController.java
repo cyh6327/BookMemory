@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class BookController {
 
     //TODO: view 로드하는 메서드 제거하고 화면단에서 로드하는 걸로 변경하기
+    //TODO: 화면단 fetch api 활용
 
     @Autowired
     BookService bookService;

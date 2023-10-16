@@ -24,10 +24,10 @@ import java.util.Properties;
 @Log4j2
 public class EmailController {
 
-    @Value("${google.client.id}")
+    @Value("${spring.datasource.emailId}")
     private String username;
 
-    @Value("${google.client.pw}")
+    @Value("${spring.datasource.emailPw}")
     private String password;
 
     @GetMapping("/send")

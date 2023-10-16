@@ -8,6 +8,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -22,6 +23,13 @@ import java.util.Collections;
 @RestController
 @Log4j2
 public class LoginController {
+
+//    @Value("${google.client.id}")
+//    private String username;
+//
+//    @Value("${google.client.pw}")
+//    private String password;
+
     @GetMapping("/login")
     public ModelAndView loginPage() {
         log.info("move loginPage...............");
