@@ -6,7 +6,7 @@
 </head>
 <body>
 <h1>책 정보 등록</h1>
-<form id="bookInfoForm" th:action="@{/book/create}" th:method="post">
+<form id="bookInfoForm">
     <!-- 책 제목 입력 -->
     <label for="title">제목:</label>
     <input type="text" id="title" name="title" required><br>
@@ -54,7 +54,35 @@
 </form>
 
 <script type="text/javascript">
+const bookInfoForm = document.getElementById("bookInfoForm");
+bookInfoForm.addEventListener("submit", (e) => {
+    e.preventDefault();
 
+    const formData = new FormData(bookInfoForm);
+    console.log([...formData]);
+
+    // 서버로 form data를 보내려면 body 속성을 json이나 객체 타입 형태가 아닌 form data 타입 형식에 맞춰서 보내야 한다
+    // formData를 보낼때, header 부분은 브라우저가 자동으로 설정해주기 때문에 Content-Type을 application/x-www-form-urlencoded ..등 따로 지정할 필요가 없다.
+    fetch("http://localhost:8000/book/create", {
+      method: "POST",
+      body: formData
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('POST request failed');
+        }
+      })
+      .then((data) => {
+        console.log(data);
+        // 생성한 책 상세페이지로 리다이렉트
+        window.location.href = 'http://localhost:8000/book/detail/'+data.bookId;
+      })
+      .catch(error => {
+        console.error(error);
+      })
+});
 </script>
 </body>
 </html>
