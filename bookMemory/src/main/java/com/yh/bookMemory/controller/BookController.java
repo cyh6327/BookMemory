@@ -35,9 +35,18 @@ public class BookController {
     @Autowired
     BookSentencesRepository bookSentencesRepository;
 
+<<<<<<< Updated upstream
+=======
+    @GetMapping("/test")
+    public String Test() {
+        return "vue connect test";
+    }
+
+>>>>>>> Stashed changes
     @PostMapping("/create")
     public ResponseEntity createBook(BookInfoDTO bookInfoDTO) throws IOException {
         log.info("createBook...............");
+        log.info("bookInfoDTO..............."+bookInfoDTO.toString());
 
         BookInfo createdBook = bookService.createBook(bookInfoDTO);
 

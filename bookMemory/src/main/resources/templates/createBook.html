@@ -54,9 +54,35 @@
 </form>
 
 <script type="text/javascript">
+<<<<<<< Updated upstream
 const bookInfoForm = document.getElementById("bookInfoForm");
 bookInfoForm.addEventListener("submit", (e) => {
     e.preventDefault();
+=======
+const submitBtn = document.getElementById("submitBtn");
+submitBtn.addEventListener("click", function() {
+    alert("submit");
+
+    // API 엔드포인트 URL
+const apiUrl = 'https://api.example.com/data';
+
+// GET 요청 보내기
+fetch(apiUrl)
+  .then(response => {
+    // 응답을 JSON 형식으로 파싱
+    return response.json();
+  })
+  .then(data => {
+    // 성공적으로 데이터를 받았을 때 처리
+    console.log(data);
+  })
+  .catch(error => {
+    // 오류 처리
+    console.error('오류 발생: ', error);
+  });
+
+});
+>>>>>>> Stashed changes
 
     const formData = new FormData(bookInfoForm);
     console.log([...formData]);
