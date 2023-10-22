@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequestMapping("/book")
@@ -33,14 +35,8 @@ public class BookController {
     @Autowired
     BookSentencesRepository bookSentencesRepository;
 
-    @GetMapping("/create")
-    public ModelAndView createBookPage() {
-        log.info("move createBook Page...............");
-        return new ModelAndView("createBook");
-    }
-
     @PostMapping("/create")
-    public ResponseEntity createBook(BookInfoDTO bookInfoDTO, HttpServletResponse response) throws IOException {
+    public ResponseEntity createBook(BookInfoDTO bookInfoDTO) throws IOException {
         log.info("createBook...............");
 
         BookInfo createdBook = bookService.createBook(bookInfoDTO);
@@ -48,9 +44,6 @@ public class BookController {
         if(createdBook == null) {
             return ResponseEntity.notFound().build();
         }
-
-        String redirectUri = "/dashboard";
-        //response.sendRedirect(redirectUri);
 
         return ResponseEntity.ok(createdBook);
     }
