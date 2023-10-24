@@ -42,13 +42,15 @@ public class BookServiceImpl implements BookService, CommonService {
     @Autowired
     BookSentencesRepository bookSentencesRepository;
 
+
     @Override
-    public BookInfo createBook(BookInfoDTO dto) {
+    public BookInfoDTO createBook(BookInfoDTO dto) {
         BookInfo entity = dtoToEntitiy(dto);
 
         BookInfo createdBook = bookInfoRepository.save(entity);
+        BookInfoDTO createdBookDTO = entityToDto(createdBook);
 
-        return createdBook;
+        return createdBookDTO;
     }
 
     @Override
@@ -122,10 +124,31 @@ public class BookServiceImpl implements BookService, CommonService {
     }
 
     @Override
-    public BookInfo getBookInfo(long bookId) {
+    public BookInfoDTO getBookInfo(long bookId) {
         BookInfo bookInfo = bookInfoRepository.getOne(bookId);
+        BookInfoDTO bookInfoDto = entityToDto(bookInfo);
 
-        return bookInfo;
+        return bookInfoDto;
+    }
+
+    @Override
+    public List<BookSentencesDTO> getSentences(long bookId) throws IOException {
+        List<BookSentences> bookSentenceList = bookSentencesRepository.findByBookInfoBookId(bookId);
+
+        //TODO: 각 문장 앞에 별(favorite_flag) 추가하고 db업데이트 로직 구성
+        List<BookSentences> sentenceList = bookSentenceList.stream()
+                .map(bookSentence -> new BookSentences(bookSentence.getSentenceText().replace("<br>", "\r\n")))
+                .collect(Collectors.toList());
+
+        List<BookSentencesDTO> sentenceListDto = new ArrayList<>();
+
+        for(BookSentences sentence : sentenceList){
+            BookSentencesDTO dto = sentenceEntityToDto(sentence);
+
+            sentenceListDto.add(dto);
+        }
+
+        return sentenceListDto;
     }
 
 //    @Override

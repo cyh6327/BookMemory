@@ -12,13 +12,13 @@ import java.io.IOException;
 import java.util.List;
 
 public interface BookService {
-    BookInfo createBook(BookInfoDTO dto);
+    BookInfoDTO createBook(BookInfoDTO dto);
 
     PageResultDTO<BookInfoDTO, BookInfo> getAllBookList(PageRequestDTO requestDTO);
 
     List<BookSentencesDTO> insertSentenceFromFile(long bookId, String title) throws IOException;
 
-    BookInfo getBookInfo(long bookId);
+    BookInfoDTO getBookInfo(long bookId);
 
-//    BookSentencesDTO read(Long bookId);
+    List<BookSentencesDTO> getSentences(long bookId) throws IOException;
 }

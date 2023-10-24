@@ -19,6 +19,6 @@ public class BookServiceTests {
                 .title("sample title")
                 .author("sample author")
                 .build();
-        System.out.println(bookService.create(bookInfoDTO));
+        System.out.println(bookService.createBook(bookInfoDTO));
     }
 }

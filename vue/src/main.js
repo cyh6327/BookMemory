@@ -4,7 +4,10 @@ import router from './router'
 import vuetify from './plugins/vuetify'
 import { loadFonts } from './plugins/webfontloader'
 import axios from "axios"
-//import { registerPlugins } from '@/plugins'
+
+// 데이트피커
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
 
 loadFonts();
 
@@ -14,4 +17,5 @@ axios.defaults.baseURL = "http://localhost:8000";
 const app = createApp(App);
 //registerPlugins(app)
 app.config.globalProperties.axios = axios;
+app.component('VueDatePicker', VueDatePicker);
 app.use(vuetify).use(router).mount("#app");

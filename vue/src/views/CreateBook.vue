@@ -1,43 +1,82 @@
 <template>
+  <v-main>
     <h1>책 정보 등록 {{ testData }}</h1>
-    <form id="bookInfoForm" @submit.prevent="onSubmit">
-      <label for="title">제목:</label>
-      <input type="text" id="title" name="title" v-model="book.title" required><br>
+    <v-form id="bookInfoForm" @submit.prevent="onSubmit">
+      <v-container>
+        <v-checkbox 
+            v-model="book.favoriteFlag"
+            label="즐겨찾기"
+            color="orange"
+        ></v-checkbox>
+        <v-text-field
+            v-model="book.title"
+            :rules="nameRules"
+            :counter="20"
+            label="제목"
+            clear-icon="mdi mdi-close"
+            clearable
+            required
+        ></v-text-field>
+
+        <v-text-field
+            v-model="book.author"
+            :rules="nameRules"
+            :counter="10"
+            label="저자"
+            clear-icon="mdi mdi-close"
+            clearable
+            required
+        ></v-text-field>
+
+        <v-combobox
+            label="장르"
+            v-model="book.genre"
+            :items="['자기계발', '인문학', '에세이', '소설']"
+            required
+        ></v-combobox>
+        
+        <v-container class="d-flex">
+          <VueDatePicker
+              v-model="readingStartDate" 
+              class="flex-1"
+              locale="ko" 
+              range 
+              dark 
+              placeholder="독서 시작일"
+          />
+          <VueDatePicker 
+              v-model="readingEndDate"
+              locale="ko" 
+              range 
+              dark 
+              placeholder="독서 종료일"
+          />
+        </v-container>
+
+        <v-text-field
+            v-model="book.rating"
+            type="number"
+            min="1" max="5" step="0.1"
+            label="평점"
+        ></v-text-field>
+
+        <v-textarea
+            v-model="book.review"
+            label="한줄평"
+            :counter="100"
+        ></v-textarea>
+
+        <v-textarea
+            v-model="book.memo"
+            label="메모"
+            :counter="100"
+        ></v-textarea>
   
-      <label for="author">저자:</label>
-      <input type="text" id="author" name="author" v-model="book.author" required><br>
-  
-      <div>
-        <label for="genre">장르:</label>
-        <select id="genre" name="genre" v-model="book.genre">
-          <option value="자기계발">자기계발</option>
-          <option value="인문학">인문학</option>
-          <option value="에세이">에세이</option>
-          <option value="소설">소설</option>
-        </select>
-      </div>
-  
-      <label for="readingStartDate">독서 시작일:</label>
-      <input type="date" id="readingStartDate" name="readingStartDate" v-model="book.readingStartDate">
-  
-      <label for="readingEndDate">독서 종료일:</label>
-      <input type="date" id="readingEndDate" name="readingEndDate" v-model="book.readingEndDate">
-  
-      <label for="rating">평점:</label>
-      <input type="number" id="rating" name="rating" v-model="book.rating" min="1" max="5" step="0.1">
-  
-      <label for="review">리뷰:</label><br>
-      <textarea id="review" name="review" v-model="book.review" rows="4" cols="50"></textarea><br>
-  
-      <label for="memo">메모:</label><br>
-      <textarea id="memo" name="memo" v-model="book.memo" rows="4" cols="50"></textarea><br>
-  
-      <label for="favoriteFlag">즐겨찾기 여부:</label>
-      <input type="checkbox" id="favoriteFlag" name="favoriteFlag" v-model="book.favoriteFlag">
-  
-      <button type="submit">등록</button>
-    </form>
-  </template>
+        <v-btn type="submit" block class="mt-2 float-end" color="#2c3e50">등록</v-btn>
+      </v-container>
+    </v-form>
+  </v-main>
+</template>
   
   <script>
   export default {
@@ -59,21 +98,14 @@
             });
         },
         onSubmit() {
-            const bookInfoForm = document.getElementById("bookInfoForm");
-            const formData = new FormData(bookInfoForm);
-            console.log([...formData]);
+            console.log(this.book);
 
-            this.axios.post("/book/create", formData)
+            this.axios.post("/book/create", this.book)
             .then((response) => {
-                console.log(response);
                 this.book = response.data;
-                console.log(this.book);
+
                 this.$router.push({
                     path: "/book/detail/"+this.book.bookId,
-                    //params: this.book,
-                    params: {
-                        title: this.book.title,
-                    }
                 });
             });
         },
@@ -82,5 +114,17 @@
   </script>
 
 <style>
-
+.v-main {
+  max-width: 700px;
+}
+.v-container.d-flex {
+  padding: 0;
+  margin-bottom: 10px;
+}
+.v-input {
+  margin-bottom: 10px;
+}
+.dp__main {
+  margin-bottom: 20px;
+}
 </style>

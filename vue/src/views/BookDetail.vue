@@ -1,20 +1,31 @@
 <template>
-    <h4>제목:{{ book.title }}</h4>
+    <h4>{{ book.bookInfo.title }}</h4>
 </template>
 
 <script>
 export default {
+  name: 'BookDetail',
   data() {
     return {
-        book: {
-            title: "",
-        },
+      book: {
+        bookInfo: {},
+        bookSentences: {},
+      }, 
     };
   },
   mounted() {
-    const params = this.$router.params;
-    console.log(params);
+    this.get();
   },
+  methods: {
+    get() {
+        const bookId = this.$route.params.bookId;
+        console.log(bookId);
+        this.axios.get("/book/detail/"+bookId).then((response) => {
+            this.book = response.data;
+            console.log(response.data);
+        });
+    },
+  }
 };
 </script>
 
