@@ -1,27 +1,16 @@
 <template>
     <v-app-bar>
-        <v-container class="d-flex align-center py-0">
-            <v-app-bar-title class="pl-0">
-            <div class="d-flex align-center">
-                <v-avatar
-                class="me-3"
-                image="https://cdn.vuetifyjs.com/docs/images/logos/v.png"
-                rounded="0"
-                />
-
-                BookWhisper
-            </div>
-            </v-app-bar-title>
-
-            <v-spacer />
-
+        <div class="px-3" style="width:160px; height:100%;">
+                <v-img src="@/assets/logo.png" style="width: 100%; height: 100%;"></v-img>
+        </div>
+        <v-spacer />
+        <div class="d-flex justify-end px-3">
             <v-btn-alt
-            append-icon="mdi-open-in-new"
-            to="/book/create"
-            rel="noopener noreferrer"
-            text="책 추가하기"
+                to="/book/create"
+                rel="noopener noreferrer"
+                text="책 추가하기"
             />
-        </v-container>
+        </div>
     </v-app-bar>
 </template>
 
@@ -30,3 +19,9 @@ export default {
     name: "VueHeader",
 }
 </script>
+
+<style>
+.v-app-bar .v-container {
+    margin:0 !important;
+}
+</style>

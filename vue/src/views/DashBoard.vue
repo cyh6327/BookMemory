@@ -30,14 +30,13 @@
                             </v-card-title>
 
                             <v-card-subtitle>{{ book.author }}</v-card-subtitle>
+                            
+                            <v-card-actions class="d-flex justify-center">
+                                <span v-for="i in book.rating" :key="i" class="material-symbols-outlined">kid_star</span>
+                            </v-card-actions>
+               
+                            <span class="tag"><a href="">#{{ book.genre }}</a></span>
 
-                            <v-card-text>
-                                <!-- <v-icon>mdi-tag-outline</v-icon> -->
-                                <span class="tag"><a href="">#{{ book.genre }}</a></span>
-                                <!-- <span class="tag">
-                                    #{{ book.genre }}
-                                </span> -->
-                            </v-card-text>
                             <v-card-actions>
                             <v-btn
                                 class="ms-2"
@@ -94,7 +93,7 @@ export default {
     background-color: transparent;
 }
 .v-card-title {
-    padding: 20px;
+    padding: 20px 20px 5px 20px;
 }
 .card-container {
     height: 200px;
@@ -116,9 +115,6 @@ export default {
 .card-container{
     background-color: rgba(33, 33, 33);
 }
-.v-btn {
-    color: #D0ADF0 !important;
-}
 .v-icon {
     /* color: #D0ADF0 !important; */
     color: #CFADF0
@@ -130,5 +126,17 @@ export default {
 .tag a:hover {
     color: #D0ADF0 !important;
     text-decoration: none;
+}
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 1,
+  'wght' 200,
+  'GRAD' 0,
+  'opsz' 24;
+  color: #D0ADF0;
+  font-size: 15px;
+}
+.v-btn {
+    color: #D0ADF0 !important;
 }
 </style>

@@ -1,5 +1,22 @@
 <template>
-    <h4>{{ book.bookInfo.title }}</h4>
+  <v-main class="mx-15">
+    <h2 class="mb-5">{{ book.bookInfo.title }}</h2>
+    <h4 style="color:gray"> {{ book.bookInfo.author }}</h4>
+    <div class="d-flex justify-end">
+      <v-btn-alt
+        v-on:click="insertSentenceFromFile"
+        rel="noopener noreferrer"
+        text="파일로 문장 추가"
+      />
+    </div>
+    <!-- <v-container class="rounded-shaped my-10"> -->
+    <v-container style="padding: 0;">
+      <ul class="my-10 rounded-shaped" v-for="sentence in book.bookSentences" :key="sentence">
+        <li class="pa-10" style="text-align:left;">{{ sentence.sentenceText }}</li>
+      </ul>
+    </v-container>
+  </v-main>
+
 </template>
 
 <script>
@@ -8,7 +25,8 @@ export default {
   data() {
     return {
       book: {
-        bookInfo: {},
+        bookInfo: {
+        },
         bookSentences: {},
       }, 
     };
@@ -25,10 +43,33 @@ export default {
             console.log(response.data);
         });
     },
+    insertSentenceFromFile() {
+      console.log(this.book.bookInfo);
+      const bookId = this.book.bookInfo.bookId;
+      const title = this.book.bookInfo.title;
+      console.log(bookId);
+      console.log(title);
+
+      this.axios.post("/book/sentence/file/"+bookId+"/"+title)
+      .then((response) => {
+          this.book = response.data;
+          console.log(response.data);
+
+          // this.$router.push({
+          //     path: "/book/detail/"+this.book.bookId,
+          // });
+      });
+    },
   }
 };
 </script>
 
 <style>
-
+.v-btn {
+    color: #D0ADF0 !important;
+}
+ul {
+  list-style:none;
+  border:1px solid #D0ADF0;
+}
 </style>
