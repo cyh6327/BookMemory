@@ -98,7 +98,7 @@ public class BookController {
     }
 
     @PostMapping(path="/sentence/file/{bookId}/{title}")
-    public ResponseEntity insertSentenceFromFile(@PathVariable(value = "bookId") Long bookId, @PathVariable(value = "title") String title,
+    public ResponseEntity<List<BookSentencesDTO>> insertSentenceFromFile(@PathVariable(value = "bookId") Long bookId, @PathVariable(value = "title") String title,
                                                  HttpServletResponse response) throws IOException {
         List<BookSentencesDTO> sentenceListDto = bookService.insertSentenceFromFile(bookId, title);
 

@@ -8,7 +8,12 @@
             <v-btn-alt
                 to="/book/create"
                 rel="noopener noreferrer"
-                text="책 추가하기"
+                text="책 추가"
+            />
+            <v-btn-alt
+                to="/login"
+                rel="noopener noreferrer"
+                text="로그인"
             />
         </div>
     </v-app-bar>

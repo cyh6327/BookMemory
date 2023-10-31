@@ -1,6 +1,7 @@
 package com.yh.bookMemory.controller;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.HashMap;
 
 @RestController
 @Log4j2
@@ -30,10 +32,14 @@ public class LoginController {
 //    @Value("${google.client.pw}")
 //    private String password;
 
-    @GetMapping("/login")
-    public ModelAndView loginPage() {
-        log.info("move loginPage...............");
-        return new ModelAndView("login");
+    @PostMapping("/login")
+    public String loginPage(@RequestBody HashMap<String,Object> map) throws GeneralSecurityException, IOException {
+
+        log.info("jwt..................."+map.toString());
+
+
+
+        return "login success";
     }
 
     @PostMapping("/google-login")
