@@ -5,11 +5,13 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import com.yh.bookMemory.ConfigUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,30 +19,46 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @Log4j2
 public class LoginController {
+    private final ConfigUtils configUtils;
 
-//    @Value("${google.client.id}")
-//    private String username;
-//
-//    @Value("${google.client.pw}")
-//    private String password;
-
-    @PostMapping("/login")
-    public String loginPage(@RequestBody HashMap<String,Object> map) throws GeneralSecurityException, IOException {
-
-        log.info("jwt..................."+map.toString());
-
-
-
-        return "login success";
+    LoginController(ConfigUtils configUtils) {
+        this.configUtils = configUtils;
     }
+
+    @GetMapping("/login")
+    public ResponseEntity<Object> loginPage() throws GeneralSecurityException, IOException {
+
+        String authUrl = configUtils.googleInitUrl();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create(authUrl));
+        return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
+//        URI redirectUri = null;
+//        try {
+//            redirectUri = new URI(authUrl);
+//            HttpHeaders httpHeaders = new HttpHeaders();
+//            httpHeaders.setLocation(redirectUri);
+//            return new ResponseEntity<>(httpHeaders, HttpStatus.SEE_OTHER);
+//        } catch (URISyntaxException e) {
+//            e.printStackTrace();
+    }
+
 
     @PostMapping("/google-login")
     public ResponseEntity googleLogin(HttpServletRequest req, @RequestBody String messageBody, Model model,
