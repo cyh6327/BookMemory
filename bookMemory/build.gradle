@@ -35,6 +35,12 @@ dependencies {
 	// https://mvnrepository.com/artifact/com.sun.mail/jakarta.mail
 	implementation 'com.sun.mail:jakarta.mail:2.0.1'
 
+	// https://mvnrepository.com/artifact/org.springframework.security/spring-security-core
+	//implementation 'org.springframework.security:spring-security-core:6.1.5'
+
+	// https://mvnrepository.com/artifact/com.auth0/java-jwt
+	implementation 'com.auth0:java-jwt:4.4.0'
+
 
 }
 

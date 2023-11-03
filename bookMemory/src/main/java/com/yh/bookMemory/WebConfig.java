@@ -2,6 +2,7 @@ package com.yh.bookMemory;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
@@ -18,5 +19,11 @@ public class WebConfig implements WebMvcConfigurer {
 //		allowedOrigins - 허용할 origin을 정의 (* 로 모든 origin을 허용, 여러개도 지정가능)
 //		allowedMethods - HTTP Method를 지정 (* 로 모든 Method를 허용)
 //		maxAge - 원하는 시간만큼 request를 cashing함
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new LoggerInterceptor())
+                .excludePathPatterns("/css/**", "/images/**", "/js/**");
     }
 }

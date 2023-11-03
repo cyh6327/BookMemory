@@ -15,6 +15,8 @@ loadFonts();
 
 //백엔드 서버 포트 지정
 axios.defaults.baseURL = "http://localhost:8000";
+// CORS 정책 허용
+// axios.defaults.withCredentials = true;
 
 const app = createApp(App);
 //registerPlugins(app)

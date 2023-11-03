@@ -2,8 +2,10 @@ package com.yh.bookMemory.service;
 
 import com.yh.bookMemory.dto.BookInfoDTO;
 import com.yh.bookMemory.dto.BookSentencesDTO;
+import com.yh.bookMemory.dto.UserDTO;
 import com.yh.bookMemory.entity.BookInfo;
 import com.yh.bookMemory.entity.BookSentences;
+import com.yh.bookMemory.entity.Users;
 
 public interface CommonService {
     default BookInfo dtoToEntitiy(BookInfoDTO dto) {
@@ -47,4 +49,6 @@ public interface CommonService {
                 .build();
         return dto;
     }
+
+
 }
