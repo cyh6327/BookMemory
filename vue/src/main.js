@@ -10,13 +10,41 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import vue3GoogleLogin from 'vue3-google-login'
 
-
 loadFonts();
 
 //백엔드 서버 포트 지정
 axios.defaults.baseURL = "http://localhost:8000";
 // CORS 정책 허용
-// axios.defaults.withCredentials = true;
+axios.defaults.withCredentials = true;
+
+axios.interceptors.request.use(
+  (config) => {
+    const accessToken = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("accessToken="))
+    ?.split("=")[1];
+
+    console.log(accessToken);
+
+    if (!accessToken) {
+      router.push({
+        path: "/book",
+      });
+      // window.location.href = '/login';
+      return config;
+    }
+
+    config.headers['Content-Type'] = 'application/json';
+    config.headers['Authorization'] = `Bearer ${accessToken}`;
+    // config.headers['Access-Control-Allow-Origin'] = "*";
+
+    return config;
+  },
+  (error) => {
+    console.log(error);
+    return Promise.reject(error);
+  },
+)
 
 const app = createApp(App);
 //registerPlugins(app)

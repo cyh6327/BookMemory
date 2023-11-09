@@ -2,24 +2,24 @@
 import { decodeCredential } from 'vue3-google-login'
 import axios from "axios"
 
-axios.interceptors.response.use(
-  (error) => {
-    if (error.response) {
-      if (error.response.status === 401) {
-        refreshToken();
-        return {
-          code: '401',
-          message: '401',
-        };
-      }
-    }
-    return Promise.reject(error);
-  }
-);
+// axios.interceptors.response.use(
+//   (error) => {
+//     if (error.response) {
+//       if (error.response.status === 401) {
+//         refreshToken();
+//         return {
+//           code: '401',
+//           message: '401',
+//         };
+//       }
+//     }
+//     return Promise.reject(error);
+//   }
+// );
 
-function refreshToken() {
+// function refreshToken() {
   
-}
+// }
 
 const callback = (response) => {
   // decodeCredential will retrive the JWT payload from the credential
@@ -34,6 +34,7 @@ function sendUserInfo(userData) {
     console.log("userInfo sended", response);
   })
 }
+
 </script>
 
 <template>

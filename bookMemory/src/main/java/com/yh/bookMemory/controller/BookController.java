@@ -47,23 +47,6 @@ public class BookController {
         log.info("dashboard.......");
 
 
-        Cookie[] cookies=request.getCookies(); // 모든 쿠키 가져오기
-        if(cookies!=null){
-            for (Cookie c : cookies) {
-                String name = c.getName(); // 쿠키 이름 가져오기
-                String value = c.getValue(); // 쿠키 값 가져오기
-                System.out.println("cookie name........................"+name);
-//                if (name.equals("accessToken")) {
-//                    receivedToken = value;
-//                }
-            }
-        }
-
-
-
-
-
-
         PageRequestDTO pageRequestDTO = PageRequestDTO.builder().page(1).size(10).build();
         PageResultDTO<BookInfoDTO, BookInfo> resultDTO = bookService.getAllBookList(pageRequestDTO);
 

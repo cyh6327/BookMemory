@@ -88,15 +88,15 @@
         book: {}, 
       };
     },
-    mounted() {
-        this.get();
-    },
+    // mounted() {
+    //     this.get();
+    // },
     methods: {
-        get() {
-            this.axios.get("/book/test").then((response) => {
-                this.testData = response.data;
-            });
-        },
+        // get() {
+        //     this.axios.get("/book/test").then((response) => {
+        //         this.testData = response.data;
+        //     });
+        // },
         onSubmit() {
             console.log(this.book);
 

@@ -78,8 +78,6 @@ public class LoginController {
         ResponseCookie cookie = ResponseCookie.from("accessToken", accessToken)
                 .path("/")
                 .maxAge(3600)
-                .httpOnly(true)
-                .sameSite("Secure")
                 .build();
 
         HttpHeaders header = new HttpHeaders();
