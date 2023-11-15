@@ -7,18 +7,25 @@ import com.yh.bookMemory.jwt.JwtTokenVerifier;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Enumeration;
+import java.util.Map;
 import java.util.Objects;
 
 public class LoggerInterceptor implements HandlerInterceptor {
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         System.out.println("==================== START ====================");
         System.out.println(" Request URI \t: " + request.getRequestURI() + request.getMethod());
+
+        if(request.getMethod().equals("OPTIONS")) {
+            return true;
+        }
 
         String receivedToken = null;
         String type = "Bearer ";
@@ -43,11 +50,19 @@ public class LoggerInterceptor implements HandlerInterceptor {
                 return false;
             }
 
+//            Map<String,Object> verifiedResult = jwtTokenVerifier.getAccessTokenInfo(receivedToken).getBody();
+//            verifiedJwt = verifiedResult.get("verifiedJwt").toString();
+            //userKey = Long.parseLong(verifiedResult.get("userKey").toString());
             verifiedJwt = Objects.requireNonNull(jwtTokenVerifier.getAccessTokenInfo(receivedToken).getBody()).toString();
 
             System.out.println("verifiedJwt.........................."+verifiedJwt);
+            //System.out.println("userKey.........................."+userKey);
+
+            RequestContextHolder.currentRequestAttributes().setAttribute("accessToken", verifiedJwt, RequestAttributes.SCOPE_REQUEST);
+
         } else {
-            return true; //TODO: option으로 날릴때 else로 들어오지만 테스트릍 위해 일단 true로 리턴해줬지만 변경해줘야함
+            //response.sendRedirect(request.getContextPath() + "/book");
+            return false; //TODO: jwt토큰 인증이 안되었을 때 정상적으로 대시보드로 리다이렉트하는지 테스트 필요
         }
 
         return verifiedJwt != null;

@@ -19,11 +19,18 @@ public class UserServiceImpl implements UserService, CommonService {
     @Autowired
     private UserRepository userRepository;
 
+    @Override
+    public Users getUserInfoByUserEmail(String userEmail) {
+        log.info("getUserInfoByUserEmail...........................");
+        Users user = userRepository.getReferenceByUserEmail(userEmail);
+
+        return user;
+    }
 
     @Override
-    public Users getUserInfo(String email) {
-        log.info("getUserInfo...........................");
-        Users user = userRepository.getReferenceByUserEmail(email);
+    public Users getUserInfoByUserKey(Long userKey) {
+        log.info("getUserInfoByUserKey...........................");
+        Users user = userRepository.getReferenceByUserKey(userKey);
 
         return user;
     }
@@ -47,13 +54,14 @@ public class UserServiceImpl implements UserService, CommonService {
     }
 
     @Override
-    public Users updateUser(HashMap<String, String> map) {
-        log.info("updateUser..........................."+map);
+    public Users updateUser(String refreshToken) {
+        log.info("updateUser..........................."+refreshToken);
 
-        Users user = getUserInfo(map.get("email"));
+        Long userKey = getUserKeyFromJwt();
+        Users user = getUserInfoByUserKey(userKey);
 
         UserDTO userDto = userEntityToDto(user);
-        userDto.setRefreshToken(map.get("refreshToken"));
+        userDto.setRefreshToken(refreshToken);
 
         user = userDtoToEntitiy(userDto);
 

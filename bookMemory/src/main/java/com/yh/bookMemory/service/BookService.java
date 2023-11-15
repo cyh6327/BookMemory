@@ -14,7 +14,7 @@ import java.util.List;
 public interface BookService {
     BookInfoDTO createBook(BookInfoDTO dto);
 
-    PageResultDTO<BookInfoDTO, BookInfo> getAllBookList(PageRequestDTO requestDTO);
+    List<BookInfoDTO> getAllBookList();
 
     List<BookSentencesDTO> insertSentenceFromFile(long bookId, String title) throws IOException;
 

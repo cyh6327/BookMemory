@@ -48,12 +48,12 @@ public class LoginController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<Object> loginPage(@RequestBody HashMap<String,String> userData) throws GeneralSecurityException, IOException {
+    public ResponseEntity<JwtReturner> loginPage(@RequestBody HashMap<String,String> userData) throws GeneralSecurityException, IOException {
 
         log.info("userData................................."+userData);
 
         String email = userData.get("email");
-        Users user = userService.getUserInfo(email);
+        Users user = userService.getUserInfoByUserEmail(email);
 
         if(user == null) {
             user = userService.createUser(userData);
@@ -67,10 +67,7 @@ public class LoginController {
 
         UserDTO dto = userService.userEntityToDto(user);
         if(dto.getRefreshToken() == null) {
-            HashMap<String, String> updateMap = new HashMap<>();
-            updateMap.put("email", email);
-            updateMap.put("refreshToken", refreshToken);
-            user = userService.updateUser(updateMap);
+            user = userService.updateUser(refreshToken);
 
             log.info("update refreshToken................................."+user);
         }
@@ -83,7 +80,7 @@ public class LoginController {
         HttpHeaders header = new HttpHeaders();
         header.set("Set-Cookie", cookie.toString());
 
-        return new ResponseEntity((new JwtReturner(accessToken, refreshToken)), header, HttpStatus.valueOf(201));
+        return new ResponseEntity<>(new JwtReturner(accessToken, refreshToken), header, HttpStatus.valueOf(201));
     }
 
 

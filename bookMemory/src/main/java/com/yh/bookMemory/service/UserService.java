@@ -10,6 +10,7 @@ public interface UserService {
 
     default Users userDtoToEntitiy(UserDTO dto) {
         Users usersEntity = Users.builder()
+                .userKey(dto.getUserKey())
                 .userEmail(dto.getUserEmail())
                 .userName(dto.getUserName())
                 .refreshToken(dto.getRefreshToken())
@@ -20,6 +21,7 @@ public interface UserService {
 
     default UserDTO userEntityToDto(Users entity) {
         UserDTO userDTO = UserDTO.builder()
+                .userKey(entity.getUserKey())
                 .userEmail(entity.getUserEmail())
                 .userName(entity.getUserName())
                 .refreshToken(entity.getRefreshToken())
@@ -28,8 +30,10 @@ public interface UserService {
         return userDTO;
     }
 
-    Users getUserInfo(String email);
+    Users getUserInfoByUserEmail(String userEmail);
+    Users getUserInfoByUserKey(Long userKey);
+
     Users createUser(HashMap<String, String> map);
-    Users updateUser(HashMap<String, String> map);
+    Users updateUser(String refreshToken);
 
 }

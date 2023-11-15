@@ -9,7 +9,7 @@
         max-width="400"
         class="mx-auto"
         >
-            <v-container>
+            <v-container v-if="this.bookList != null">
                 <v-row>
 
                     <v-col cols="3" v-for="book in bookList" :key="book">
@@ -74,13 +74,18 @@ export default {
   },
   methods: {
     get() {
-        this.axios.get("/book").then((response) => {
+        this.axios.get("/book")
+        .then((response) => {
             //this.book = response.data;
             console.log(response.data);
             this.bookList = response.data;
             console.log(this.bookList);
             console.log(this.bookList[0]);
-        });
+        })
+        .catch((error) => {
+            console.log(error);
+            this.bookList = null;
+        })
     },
   }
 };

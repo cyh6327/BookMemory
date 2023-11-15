@@ -12,6 +12,9 @@ import lombok.*;
 public class Users {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userKey;
+
     @Column(nullable = false)
     private String userEmail;
 

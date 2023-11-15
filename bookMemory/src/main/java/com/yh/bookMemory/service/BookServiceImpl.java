@@ -6,6 +6,8 @@ import com.yh.bookMemory.dto.PageRequestDTO;
 import com.yh.bookMemory.dto.PageResultDTO;
 import com.yh.bookMemory.entity.BookInfo;
 import com.yh.bookMemory.entity.BookSentences;
+import com.yh.bookMemory.entity.Users;
+import com.yh.bookMemory.jwt.JwtTokenVerifier;
 import com.yh.bookMemory.repository.BookInfoRepository;
 import com.yh.bookMemory.repository.BookSentencesRepository;
 import lombok.extern.log4j.Log4j2;
@@ -22,12 +24,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,25 +49,62 @@ public class BookServiceImpl implements BookService, CommonService {
     @Autowired
     private BookSentencesRepository bookSentencesRepository;
 
+    @Autowired
+    private UserService userService;
 
     @Override
     public BookInfoDTO createBook(BookInfoDTO dto) {
+        log.info("createBook.....................................");
+        Long userKey = getUserKeyFromJwt();
+        log.info("userKey....................................."+userKey);
+        /////// getUserKeyFromJwt() 공통함수로 분리
+//        String accessToken = Objects.requireNonNull(RequestContextHolder.getRequestAttributes().getAttribute("accessToken", RequestAttributes.SCOPE_REQUEST)).toString();
+//        log.info("accessToken from RequestContextHolder....................................."+accessToken);
+//
+//        JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(accessToken);
+//        Long userKey = Long.parseLong(jwtTokenVerifier.getJwtInfo(accessToken, "user_key"));
+
+        //TODO: bookInfo 테이블에 user_key를 넣어야해서 일단은 Users entity를 찾아와서 넣어줬는데 조금 더 간단한 방법이 있는지 알아보고 수정
+        //생각해본건 아예 RequestContextHolder에 accesstoken 대신 users entity를 넣는 방법인데 일반적으로 이렇게 하는지는 모르겠네
+        Users user = userService.getUserInfoByUserKey(userKey);
+        dto.setUsers(user);
+
         BookInfo entity = dtoToEntitiy(dto);
 
         BookInfo createdBook = bookInfoRepository.save(entity);
         BookInfoDTO createdBookDTO = entityToDto(createdBook);
 
+        log.info("createdBookDTO....................................."+createdBookDTO);
+
         return createdBookDTO;
     }
 
     @Override
-    public PageResultDTO<BookInfoDTO, BookInfo> getAllBookList(PageRequestDTO requestDTO) {
-        log.info("getAllBookList....................");
-        Pageable pageable = requestDTO.getPageable(Sort.by("bookId").descending());
-        Page<BookInfo> result = bookInfoRepository.findAll(pageable);
-        Function<BookInfo, BookInfoDTO> fn = (entity -> entityToDto(entity));
+    public List<BookInfoDTO> getAllBookList() {
+        Long userKey = getUserKeyFromJwt();
+        if(userKey == null) {
+            return null;
+        }
 
-        return new PageResultDTO<>(result,fn);
+        log.info("getAllBookList....................");
+
+        List<BookInfo> resultList = bookInfoRepository.getReferenceByUsersUserKey(userKey);
+
+        List<BookInfoDTO> resultListDto = new ArrayList<>();
+
+        for(BookInfo book : resultList){
+            BookInfoDTO dto = entityToDto(book);
+
+            resultListDto.add(dto);
+        }
+
+        return resultListDto;
+//        Pageable pageable = requestDTO.getPageable(Sort.by("bookId").descending());
+//        Page<BookInfo> result = bookInfoRepository.getReferenceByUsersUserKey(userKey);
+//        //Page<BookInfo> result = bookInfoRepository.findAll(pageable);
+//        Function<BookInfo, BookInfoDTO> fn = (entity -> entityToDto(entity));
+//
+//        return new PageResultDTO<>(result,fn);
     }
 
     @Override

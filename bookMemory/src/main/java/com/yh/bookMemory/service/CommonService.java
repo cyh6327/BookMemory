@@ -6,6 +6,11 @@ import com.yh.bookMemory.dto.UserDTO;
 import com.yh.bookMemory.entity.BookInfo;
 import com.yh.bookMemory.entity.BookSentences;
 import com.yh.bookMemory.entity.Users;
+import com.yh.bookMemory.jwt.JwtTokenVerifier;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+
+import java.util.Objects;
 
 public interface CommonService {
     default BookInfo dtoToEntitiy(BookInfoDTO dto) {
@@ -20,6 +25,7 @@ public interface CommonService {
                 .memo(dto.getMemo())
                 .favoriteFlag(dto.getFavoriteFlag())
                 .genre(dto.getGenre())
+                .users(dto.getUsers())
                 .build();
         return entity;
     }
@@ -36,6 +42,7 @@ public interface CommonService {
                 .memo(entity.getMemo())
                 .favoriteFlag(entity.getFavoriteFlag())
                 .genre(entity.getGenre())
+                .users(entity.getUsers())
                 .build();
         return dto;
     }
@@ -50,5 +57,16 @@ public interface CommonService {
         return dto;
     }
 
+    default Long getUserKeyFromJwt() {
+        Object accessToken = RequestContextHolder.getRequestAttributes().getAttribute("accessToken", RequestAttributes.SCOPE_REQUEST);
 
+        if(accessToken == null) {
+            return null;
+        }
+
+        JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(accessToken.toString());
+        Long userKey = Long.parseLong(jwtTokenVerifier.getJwtInfo(accessToken.toString(), "user_key"));
+
+        return userKey;
+    }
 }

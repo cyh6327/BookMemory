@@ -46,4 +46,7 @@ public class BookInfo {
 
     @Column
     private String genre;
+
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    private Users users;
 }

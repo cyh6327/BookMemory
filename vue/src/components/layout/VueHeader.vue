@@ -6,14 +6,21 @@
         <v-spacer />
         <div class="d-flex justify-end px-3">
             <v-btn-alt
+                v-if="isLogined()"
                 to="/book/create"
                 rel="noopener noreferrer"
                 text="책 추가"
             />
             <v-btn-alt
+                v-if="!isLogined()"
                 to="/login"
                 rel="noopener noreferrer"
                 text="로그인"
+            />
+            <v-btn-alt
+                v-if="isLogined()"
+                rel="noopener noreferrer"
+                text="로그아웃"
             />
         </div>
     </v-app-bar>
@@ -22,6 +29,14 @@
 <script>
 export default {
     name: "VueHeader",
+    data() {
+    },
+    methods: {
+        isLogined() {
+            const value = document.cookie.match('(^|;) ?' + "accessToken" + '=([^;]*)(;|$)');
+            return value ? true : false;
+        },
+    },
 }
 </script>
 

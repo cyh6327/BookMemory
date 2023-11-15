@@ -37,28 +37,26 @@ public class BookController {
     BookService bookService;
 
     @Autowired
-    CommonService commonService;
-
-    @Autowired
     BookSentencesRepository bookSentencesRepository;
 
     @GetMapping("")
-    public ResponseEntity<List<BookInfoDTO>> dashboard(HttpServletRequest request) {
+    public ResponseEntity<List<BookInfoDTO>> dashboard(HttpServletRequest request){
         log.info("dashboard.......");
 
 
-        PageRequestDTO pageRequestDTO = PageRequestDTO.builder().page(1).size(10).build();
-        PageResultDTO<BookInfoDTO, BookInfo> resultDTO = bookService.getAllBookList(pageRequestDTO);
+//        PageRequestDTO pageRequestDTO = PageRequestDTO.builder().page(1).size(10).build();
+//        PageResultDTO<BookInfoDTO, BookInfo> resultDTO = bookService.getAllBookList(pageRequestDTO);
+        List<BookInfoDTO> resultListDto = bookService.getAllBookList();
 
-        log.info("resultDTO......."+resultDTO.toString());
+        log.info("resultListDto......."+resultListDto);
 
-        if(resultDTO == null) {
+        if(resultListDto == null) {
             return ResponseEntity.notFound().build();
         }
 
-        List<BookInfoDTO> bookList = resultDTO.getDtoList();
+        //List<BookInfoDTO> bookList = resultListDto.getDtoList();
 
-        return ResponseEntity.ok(bookList);
+        return ResponseEntity.ok(resultListDto);
     }
 
     @GetMapping("/test")

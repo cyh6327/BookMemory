@@ -32,9 +32,11 @@ function sendUserInfo(userData) {
   axios.post("/login", userData)
   .then((response) => {
     console.log("userInfo sended", response);
+    this.$router.push({
+      path: "/book",
+    });
   })
 }
-
 </script>
 
 <template>
