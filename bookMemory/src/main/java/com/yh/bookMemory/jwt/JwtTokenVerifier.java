@@ -7,6 +7,9 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.yh.bookMemory.dto.BookInfoDTO;
 import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -29,18 +32,14 @@ public class JwtTokenVerifier {
         return verifier.verify(token);
     }
 
-    public DecodedJWT decodeJWT(String receivedToken) {
-        JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(JwtProperties.SECRET);
-        DecodedJWT decodedJWT = jwtTokenVerifier.verify(receivedToken);
-
-        return decodedJWT;
-    }
-
     public String getJwtInfo(String receivedToken, String key) {
-        DecodedJWT jwt = decodeJWT(receivedToken);
+        JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(JwtProperties.SECRET);
+        DecodedJWT jwt = jwtTokenVerifier.verify(receivedToken);
+        log.info("getJwtInfo................................"+jwt.toString());
         if(key == "user_name") {
             return (String)jwt.getSubject();
         } else {
+            log.info("jwt.getClaim(key)................................"+jwt.getClaim(key));
             return jwt.getClaim(key).asString();
         }
     }
@@ -54,7 +53,7 @@ public class JwtTokenVerifier {
         String email = null;
 
         try {
-            DecodedJWT decodedJWT = decodeJWT(receivedToken);
+            DecodedJWT decodedJWT = verify(receivedToken);
 //            if (decodedJWT.getClaim("email") != null) {
             if(decodedJWT != null) {
                 accessToken = receivedToken;
@@ -63,6 +62,8 @@ public class JwtTokenVerifier {
                 userKey = decodedJWT.getClaim("user_key").asLong();
                 email = decodedJWT.getClaim("user_email").asString();
                 socialAccessToken = decodedJWT.getClaim("socialAccessToken").asString();
+
+                //TODO: accessTokenExp 을 체크해서 else if로 유효시간 만료 예외 던지기
 
                 log.info("accessToken......................"+accessToken);
                 log.info("accessTokenExp......................"+accessTokenExp);

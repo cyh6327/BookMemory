@@ -67,7 +67,7 @@ public class LoginController {
 
         UserDTO dto = userService.userEntityToDto(user);
         if(dto.getRefreshToken() == null) {
-            user = userService.updateUser(refreshToken);
+            user = userService.updateRefreshToken(refreshToken);
 
             log.info("update refreshToken................................."+user);
         }

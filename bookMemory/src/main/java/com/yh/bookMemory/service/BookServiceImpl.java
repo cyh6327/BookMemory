@@ -1,5 +1,6 @@
 package com.yh.bookMemory.service;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.yh.bookMemory.dto.BookInfoDTO;
 import com.yh.bookMemory.dto.BookSentencesDTO;
 import com.yh.bookMemory.dto.PageRequestDTO;
@@ -7,10 +8,13 @@ import com.yh.bookMemory.dto.PageResultDTO;
 import com.yh.bookMemory.entity.BookInfo;
 import com.yh.bookMemory.entity.BookSentences;
 import com.yh.bookMemory.entity.Users;
+import com.yh.bookMemory.jwt.JwtProperties;
 import com.yh.bookMemory.jwt.JwtTokenVerifier;
 import com.yh.bookMemory.repository.BookInfoRepository;
 import com.yh.bookMemory.repository.BookSentencesRepository;
 import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -55,14 +59,17 @@ public class BookServiceImpl implements BookService, CommonService {
     @Override
     public BookInfoDTO createBook(BookInfoDTO dto) {
         log.info("createBook.....................................");
-        Long userKey = getUserKeyFromJwt();
+
+        Object accessToken = Objects.requireNonNull(RequestContextHolder.getRequestAttributes()).getAttribute("accessToken", RequestAttributes.SCOPE_REQUEST);
+        if(accessToken == null) {
+            throw new NullPointerException("accessToken 값이 없습니다.");
+        }
+
+        // TODO: CommonService로 빼려고 했으나 뭔가 잘 안됨... 나중에 바꿔보자
+        JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(JwtProperties.SECRET);
+        DecodedJWT jwt = jwtTokenVerifier.verify(Objects.toString(accessToken));
+        Long userKey = jwt.getClaim("user_key").asLong();
         log.info("userKey....................................."+userKey);
-        /////// getUserKeyFromJwt() 공통함수로 분리
-//        String accessToken = Objects.requireNonNull(RequestContextHolder.getRequestAttributes().getAttribute("accessToken", RequestAttributes.SCOPE_REQUEST)).toString();
-//        log.info("accessToken from RequestContextHolder....................................."+accessToken);
-//
-//        JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(accessToken);
-//        Long userKey = Long.parseLong(jwtTokenVerifier.getJwtInfo(accessToken, "user_key"));
 
         //TODO: bookInfo 테이블에 user_key를 넣어야해서 일단은 Users entity를 찾아와서 넣어줬는데 조금 더 간단한 방법이 있는지 알아보고 수정
         //생각해본건 아예 RequestContextHolder에 accesstoken 대신 users entity를 넣는 방법인데 일반적으로 이렇게 하는지는 모르겠네
@@ -81,7 +88,7 @@ public class BookServiceImpl implements BookService, CommonService {
 
     @Override
     public List<BookInfoDTO> getAllBookList() {
-        Long userKey = getUserKeyFromJwt();
+        Long userKey = 1L;
         if(userKey == null) {
             return null;
         }
@@ -169,7 +176,7 @@ public class BookServiceImpl implements BookService, CommonService {
 
     @Override
     public BookInfoDTO getBookInfo(long bookId) {
-        BookInfo bookInfo = bookInfoRepository.getOne(bookId);
+        BookInfo bookInfo = bookInfoRepository.getReferenceByBookId(bookId);
         BookInfoDTO bookInfoDto = entityToDto(bookInfo);
 
         return bookInfoDto;

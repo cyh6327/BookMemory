@@ -45,9 +45,11 @@ public class LoggerInterceptor implements HandlerInterceptor {
         if(receivedToken != null) {
             JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(JwtProperties.SECRET);
 
+            // getAccessTokenInfo 에서 넘어온 status로 1.유효시간이 경과했는지 아니면 2.아예 유효하지 않은 토큰인지 확인
+            // 2인 경우 에러 발생시키고 1인 경우 refresh token 유효한지 체크 후 유효하면 refresh token 검증하여 access token 재발급
+            // 그리고 access token이 유효한 경우에도 바로 넘기는 게 아니라 refresh도 만료 여부를 검증해야 한다.
             if(jwtTokenVerifier.getAccessTokenInfo(receivedToken).getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
-                response.sendRedirect(request.getContextPath()+"/book");
-                return false;
+                //response.sendRedirect(request.getContextPath()+"/book");
             }
 
 //            Map<String,Object> verifiedResult = jwtTokenVerifier.getAccessTokenInfo(receivedToken).getBody();

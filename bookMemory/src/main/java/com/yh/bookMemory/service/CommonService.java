@@ -6,7 +6,10 @@ import com.yh.bookMemory.dto.UserDTO;
 import com.yh.bookMemory.entity.BookInfo;
 import com.yh.bookMemory.entity.BookSentences;
 import com.yh.bookMemory.entity.Users;
+import com.yh.bookMemory.jwt.JwtProperties;
 import com.yh.bookMemory.jwt.JwtTokenVerifier;
+import lombok.Value;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
@@ -57,16 +60,20 @@ public interface CommonService {
         return dto;
     }
 
-    default Long getUserKeyFromJwt() {
-        Object accessToken = RequestContextHolder.getRequestAttributes().getAttribute("accessToken", RequestAttributes.SCOPE_REQUEST);
-
-        if(accessToken == null) {
-            return null;
-        }
-
-        JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(accessToken.toString());
-        Long userKey = Long.parseLong(jwtTokenVerifier.getJwtInfo(accessToken.toString(), "user_key"));
-
-        return userKey;
-    }
+//    default Long getUserKeyFromJwt() {
+//        System.out.println("getUserKeyFromJwt...................");
+//        Object accessToken = RequestContextHolder.getRequestAttributes().getAttribute("accessToken", RequestAttributes.SCOPE_REQUEST);
+//        System.out.println("accessToken..................."+accessToken);
+//        if(accessToken == null) {
+//            throw new NullPointerException("accessToken 값이 존재하지 않습니다.");
+//        }
+//
+//        JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(JwtProperties.SECRET);
+//        String userKey = jwtTokenVerifier.getJwtInfo(accessToken.toString(), "user_key");
+//        if(userKey == null) {
+//            throw new NullPointerException("jwt token에서 user_key 정보를 받아오는데 실패하였습니다.");
+//        }
+//
+//        return Long.parseLong(jwtTokenVerifier.getJwtInfo(accessToken.toString(), "user_key"));
+//    }
 }

@@ -78,7 +78,7 @@
   </v-main>
 </template>
   
-  <script>
+<script>
   export default {
     name: "BookInfo",
   
@@ -111,7 +111,7 @@
         },
     },
   };
-  </script>
+</script>
 
 <style>
 .v-main {

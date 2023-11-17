@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface BookInfoRepository extends JpaRepository<BookInfo, Long> {
     List<BookInfo> getReferenceByUsersUserKey(Long userKey);
+    BookInfo getReferenceByBookId(Long bookId);
 }

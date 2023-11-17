@@ -54,10 +54,10 @@ public class UserServiceImpl implements UserService, CommonService {
     }
 
     @Override
-    public Users updateUser(String refreshToken) {
+    public Users updateRefreshToken(String refreshToken) {
         log.info("updateUser..........................."+refreshToken);
 
-        Long userKey = getUserKeyFromJwt();
+        Long userKey = 1L;
         Users user = getUserInfoByUserKey(userKey);
 
         UserDTO userDto = userEntityToDto(user);

@@ -9,9 +9,8 @@
         max-width="400"
         class="mx-auto"
         >
-            <v-container v-if="this.bookList != null">
-                <v-row>
-
+            <v-container>
+                <v-row v-if="this.bookList != null">
                     <v-col cols="3" v-for="book in bookList" :key="book">
                     <v-card
                         color="#952175"
@@ -54,9 +53,12 @@
                         </div>
                     </v-card>
                     </v-col>
-
                 </v-row>
+                <div v-else>
+                    <p>추가한 책이 없습니다.</p>
+                </div>
             </v-container>
+
         </v-card>
     </v-main>
 </template>

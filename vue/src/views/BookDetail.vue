@@ -1,7 +1,7 @@
 <template>
   <v-main id="book_detail">
-    <h2 class="mb-5">{{ book.bookInfo.title }}</h2>
-    <h4 style="color:gray"> {{ book.bookInfo.author }}</h4>
+      <h2 class="mb-5">{{ book.bookInfo.title }}</h2>
+      <h4 style="color:gray"> {{ book.bookInfo.author }}</h4>
     <div class="btn_box d-flex justify-end">
       <v-btn-alt
         v-on:click="insertSentenceFromFile"
@@ -10,6 +10,9 @@
       />
     </div>
     <v-container class="rounded-shaped">
+      <ul lass="my-10">
+        <li class="pa-10">dsfdsfsdfdsfsdsdf</li>
+      </ul>
     <!-- <v-container style="padding: 0;"> -->
       <ul class="my-10" v-for="sentence in book.bookSentences" :key="sentence">
         <li class="pa-10" style="text-align:left;">{{ sentence.sentenceText }}</li>
