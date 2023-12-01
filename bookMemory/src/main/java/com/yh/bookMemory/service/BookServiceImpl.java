@@ -67,7 +67,7 @@ public class BookServiceImpl implements BookService, CommonService {
 
         // TODO: CommonService로 빼려고 했으나 뭔가 잘 안됨... 나중에 바꿔보자
         JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(JwtProperties.SECRET);
-        DecodedJWT jwt = jwtTokenVerifier.verify(Objects.toString(accessToken));
+        DecodedJWT jwt = jwtTokenVerifier.verify(Objects.toString(accessToken),false);
         Long userKey = jwt.getClaim("user_key").asLong();
         log.info("userKey....................................."+userKey);
 
@@ -87,16 +87,17 @@ public class BookServiceImpl implements BookService, CommonService {
     }
 
     @Override
-    public List<BookInfoDTO> getAllBookList() {
-        Long userKey = 1L;
-        if(userKey == null) {
-            return null;
-        }
+    public List<BookInfoDTO> getAllBookList(long userKey) {
+//        Long userKey = 1L;
+//        if(userKey == null) {
+//            return null;
+//        }
+
+        log.info("userKey...................."+userKey);
 
         log.info("getAllBookList....................");
 
         List<BookInfo> resultList = bookInfoRepository.getReferenceByUsersUserKey(userKey);
-
         List<BookInfoDTO> resultListDto = new ArrayList<>();
 
         for(BookInfo book : resultList){

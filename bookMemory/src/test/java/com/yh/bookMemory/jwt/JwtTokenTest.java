@@ -81,7 +81,7 @@ class JwtTokenTest {
         log.info("accessToken.................."+accessToken);
 
         JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(JwtProperties.SECRET);
-        decodedJWT = jwtTokenVerifier.verify(accessToken);
+        decodedJWT = jwtTokenVerifier.verify(accessToken, false);
 
         assertNotNull(decodedJWT);
     }

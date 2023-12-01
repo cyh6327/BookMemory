@@ -10,7 +10,7 @@
         class="mx-auto"
         >
             <v-container>
-                <v-row v-if="this.bookList != null">
+                <v-row v-if="this.bookList.length != 0">
                     <v-col cols="3" v-for="book in bookList" :key="book">
                     <v-card
                         color="#952175"

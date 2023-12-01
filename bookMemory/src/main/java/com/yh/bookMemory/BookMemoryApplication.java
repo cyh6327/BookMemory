@@ -10,10 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 따라서 test 폴더에 있는 클래스는 스캔하지 않는 것
 */
 @SpringBootApplication
-public class BookMemoryApplication {
-
-	public static void main(String[] args) {
+public class BookMemoryApplication { public static void main(String[] args) {
 		SpringApplication.run(BookMemoryApplication.class, args);
 	}
-
 }

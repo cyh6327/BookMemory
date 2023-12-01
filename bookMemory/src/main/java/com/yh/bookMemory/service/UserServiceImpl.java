@@ -2,6 +2,7 @@ package com.yh.bookMemory.service;
 
 import com.yh.bookMemory.dto.UserDTO;
 import com.yh.bookMemory.entity.Users;
+import com.yh.bookMemory.jwt.CreateJwt;
 import com.yh.bookMemory.repository.UserRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,11 +55,20 @@ public class UserServiceImpl implements UserService, CommonService {
     }
 
     @Override
-    public Users updateRefreshToken(String refreshToken) {
-        log.info("updateUser..........................."+refreshToken);
+    public Users updateRefreshToken(String refreshToken, Long userKey) {
+        log.info("updateRefreshToken..........................."+refreshToken);
 
-        Long userKey = 1L;
+        //Long userKey = 1L;
         Users user = getUserInfoByUserKey(userKey);
+
+        // refresh token이 만료된 경우 null로 넘겨주기 때문에 새로운 refresh token 생성
+        if(refreshToken == null) {
+            String accessToken = CreateJwt.createAccessToken(user);
+            refreshToken = CreateJwt.createRefreshToken(user, accessToken);
+
+            log.info("accessToken................................."+accessToken);
+            log.info("refreshToken................................."+refreshToken);
+        }
 
         UserDTO userDto = userEntityToDto(user);
         userDto.setRefreshToken(refreshToken);
@@ -69,4 +79,5 @@ public class UserServiceImpl implements UserService, CommonService {
 
         return result;
     }
+
 }

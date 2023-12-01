@@ -6,6 +6,8 @@ import com.yh.bookMemory.dto.PageRequestDTO;
 import com.yh.bookMemory.dto.PageResultDTO;
 import com.yh.bookMemory.entity.BookInfo;
 import com.yh.bookMemory.entity.BookSentences;
+import com.yh.bookMemory.jwt.JwtProperties;
+import com.yh.bookMemory.jwt.JwtTokenVerifier;
 import com.yh.bookMemory.repository.BookSentencesRepository;
 import com.yh.bookMemory.service.BookService;
 import com.yh.bookMemory.service.CommonService;
@@ -20,13 +22,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequestMapping("/book")
@@ -43,10 +44,32 @@ public class BookController {
     public ResponseEntity<List<BookInfoDTO>> dashboard(HttpServletRequest request){
         log.info("dashboard.......");
 
+        List<BookInfoDTO> resultListDto = new ArrayList<>();
+
+        Object accessToken = RequestContextHolder.getRequestAttributes().getAttribute("accessToken", RequestAttributes.SCOPE_REQUEST);
+        log.info("first accessToken......."+accessToken);
+
+        // savedToken 이 없다는 것은 최초 로그인 전 상태이다.
+        if(accessToken == null) {
+            log.info("최초 로그인 하기 전...................................");
+            return ResponseEntity.ok(resultListDto);
+        }
+
+        JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(JwtProperties.SECRET);
+        Object userKey = jwtTokenVerifier.getJwtInfo(Objects.toString(accessToken), "user_key");
+
+        if(userKey == null) {
+            log.info("userKey from jwt token is null...................................");
+            return ResponseEntity.notFound().build();
+        }
+
+        log.info("userKey......."+userKey.toString());
 
 //        PageRequestDTO pageRequestDTO = PageRequestDTO.builder().page(1).size(10).build();
 //        PageResultDTO<BookInfoDTO, BookInfo> resultDTO = bookService.getAllBookList(pageRequestDTO);
-        List<BookInfoDTO> resultListDto = bookService.getAllBookList();
+
+        // TODO: 타입 변환이 너무 복잡한데 간결하게 할 방법 생각
+        resultListDto = bookService.getAllBookList(Long.parseLong(userKey.toString()));
 
         log.info("resultListDto......."+resultListDto);
 
@@ -54,14 +77,7 @@ public class BookController {
             return ResponseEntity.notFound().build();
         }
 
-        //List<BookInfoDTO> bookList = resultListDto.getDtoList();
-
         return ResponseEntity.ok(resultListDto);
-    }
-
-    @GetMapping("/test")
-    public String Test() {
-        return "vue connect test";
     }
 
     @PostMapping("/create")

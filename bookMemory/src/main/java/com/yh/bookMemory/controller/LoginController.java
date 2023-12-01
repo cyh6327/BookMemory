@@ -10,7 +10,9 @@ import com.yh.bookMemory.ConfigUtils;
 import com.yh.bookMemory.dto.UserDTO;
 import com.yh.bookMemory.entity.Users;
 import com.yh.bookMemory.jwt.CreateJwt;
+import com.yh.bookMemory.jwt.JwtProperties;
 import com.yh.bookMemory.jwt.JwtReturner;
+import com.yh.bookMemory.jwt.JwtTokenVerifier;
 import com.yh.bookMemory.service.CommonService;
 import com.yh.bookMemory.service.UserService;
 import jakarta.servlet.http.Cookie;
@@ -27,6 +29,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.BufferedReader;
@@ -53,6 +57,7 @@ public class LoginController {
         log.info("userData................................."+userData);
 
         String email = userData.get("email");
+        Long userKey = 1L;
         Users user = userService.getUserInfoByUserEmail(email);
 
         if(user == null) {
@@ -67,7 +72,7 @@ public class LoginController {
 
         UserDTO dto = userService.userEntityToDto(user);
         if(dto.getRefreshToken() == null) {
-            user = userService.updateRefreshToken(refreshToken);
+            user = userService.updateRefreshToken(refreshToken, userKey);
 
             log.info("update refreshToken................................."+user);
         }

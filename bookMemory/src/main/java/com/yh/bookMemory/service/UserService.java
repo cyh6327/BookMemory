@@ -34,6 +34,6 @@ public interface UserService {
     Users getUserInfoByUserKey(Long userKey);
 
     Users createUser(HashMap<String, String> map);
-    Users updateRefreshToken(String refreshToken);
+    Users updateRefreshToken(String refreshToken, Long userKey);
 
 }
