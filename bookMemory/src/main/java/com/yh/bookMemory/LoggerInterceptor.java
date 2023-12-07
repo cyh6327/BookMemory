@@ -14,7 +14,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -59,83 +61,71 @@ public class LoggerInterceptor implements HandlerInterceptor {
         }
         System.out.println("accessToken from cookie.........................."+receivedToken);
 
-        if(receivedToken != null) {
-            /*
-                getAccessTokenInfo 에서 넘어온 status로 1.유효시간이 경과했는지 아니면 2.아예 유효하지 않은 토큰인지 확인
-                2인 경우 에러 발생시키고 1인 경우 refresh token 유효한지 체크 후 유효하면 refresh token 검증하여 access token 재발급
-                그리고 access token이 유효한 경우에도 바로 넘기는 게 아니라 refresh도 만료 여부를 검증해야 한다.
-             */
+        if(receivedToken == null) {
+            //response.sendRedirect(request.getContextPath()+"/book");
+            // receivedToken이 없어도 메인화면은 호출이 가능하다.
+            return request.getRequestURI().equals("/book");
+        }
 
-            JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(JwtProperties.SECRET);
+        /*
+            getAccessTokenInfo 에서 넘어온 status로 1.유효시간이 경과했는지 아니면 2.아예 유효하지 않은 토큰인지 확인
+            2인 경우 에러 발생시키고 1인 경우 refresh token 만료여부 체크 후
+            1. 유효하면 refresh token 검증하여 access token 재발급 2. 만료됐다면 refresh token 재발급 후 access token 재발급
+         */
+        JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(JwtProperties.SECRET);
+        try {
+            jwtTokenVerifier.verify(receivedToken);
+        } catch (JWTVerificationException e){
+            // 유효기간 만료
+            System.out.println("accesstoken has expired..........................");
+
+            // access token에서 user_key 정보를 가져온다.
             Object userKey = jwtTokenVerifier.getJwtInfo(Objects.toString(receivedToken), "user_key");
-
             if(userKey == null) {
                 return false;
             }
 
-            // 유저의 refresh token 가져오기
+            // access token을 재발급하기 위해 유저의 refresh token 을 가져온다.
             Users user = userService.getUserInfoByUserKey(Long.parseLong(userKey.toString()));
             String userRefreshToken = user.getRefreshToken();
-            System.out.println("userRefreshToken.........................."+userRefreshToken);
-
             if(userRefreshToken == null) {
                 return false;
             }
-
             System.out.println("userRefreshToken.........................."+userRefreshToken);
 
-            // access token 유효기간 만료
-            if(jwtTokenVerifier.getJwtTokenInfo(receivedToken).getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
-                System.out.println("accesstoken validity period has expired..........................");
-                try {
-                    // refresh token도 유효기간이 지났을 경우 해당 유저의 refresh token을 업데이트한다.
-                    if(jwtTokenVerifier.getJwtTokenInfo(userRefreshToken).getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
-                        System.out.println("refresh token validity period has expired..........................");
-                        user = userService.updateRefreshToken(null, Long.parseLong(Objects.toString(userKey)));
-                        System.out.println("updated refresh token : "+user.getRefreshToken());
-                    } else {
-                        // refresh token이 유효할 경우에는 해당 refresh token으로 access token을 재발급한다.
-                        System.out.println("refresh token is valid..................................");
-                        user = userService.getUserInfoByUserKey(Long.parseLong(Objects.toString(userKey)));
-                        verifiedJwt = CreateJwt.createAccessToken(user);
-                        System.out.println("updated access token : "+verifiedJwt);
-                    }
-                } catch(JWTVerificationException e) {
-                    return false;
-                }
-            } else if(jwtTokenVerifier.getJwtTokenInfo(receivedToken).getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
-                // 유효하지 않은 access token
-                return false;
-            } else {
-                // access token이 유효하지만 refresh token이 만료일 경우 업데이트
-                if(jwtTokenVerifier.getJwtTokenInfo(userRefreshToken).getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
-                    System.out.println("refresh token validity period has expired..........................");
-                    user = userService.updateRefreshToken(null, Long.parseLong(Objects.toString(userKey)));
-                    System.out.println("updated refresh token : "+user.getRefreshToken());
-                }
-                return true;
+            // refresh token의 유효기간이 지나지 않았는지 검증한다.
+            try {
+                jwtTokenVerifier.verify(userRefreshToken);
+            } catch(JWTVerificationException e1) {
+                System.out.println("userRefreshToken has expired........................");
+                // refresh token이 만료되었다면 재발급하여 db에 업데이트한다.
+                userService.updateRefreshToken(null, Long.parseLong(Objects.toString(userKey)));
+            } finally {
+                // 최종적으로 access token을 재발급한다.
+                verifiedJwt = CreateJwt.createAccessToken(user);
+                System.out.println("updated access token : "+verifiedJwt);
+
+                // access token을 쿠키에 저장한다.
+                ResponseCookie cookie = ResponseCookie.from("accessToken", verifiedJwt)
+                        .path("/")
+                        .maxAge(3600)
+                        .build();
+
+                HttpHeaders header = new HttpHeaders();
+                header.set("Set-Cookie", cookie.toString());
             }
 
-//            Map<String,Object> verifiedResult = jwtTokenVerifier.getAccessTokenInfo(receivedToken).getBody();
-//            verifiedJwt = verifiedResult.get("verifiedJwt").toString();
-            //userKey = Long.parseLong(verifiedResult.get("userKey").toString());
-            verifiedJwt = Objects.requireNonNull(jwtTokenVerifier.getJwtTokenInfo(receivedToken).getBody()).toString();
-
-            System.out.println("verifiedJwt.........................."+verifiedJwt);
-            //System.out.println("userKey.........................."+userKey);
-
-            RequestContextHolder.currentRequestAttributes().setAttribute("accessToken", verifiedJwt, RequestAttributes.SCOPE_REQUEST);
-        } else {
-            //response.sendRedirect(request.getContextPath() + "/book");
-            if(request.getRequestURI().equals("/book")) {
-                return true;
-            }
-            //response.sendRedirect(request.getContextPath()+"/book");
-            return false; //TODO: jwt토큰 인증이 안되었을 때 정상적으로 대시보드로 리다이렉트하는지 테스트 필요
+        } catch (Exception e) {
+            // 유효하지 않은 토큰이거나 이외의 예외상황
+            return false;
         }
 
+        verifiedJwt = Objects.requireNonNull(jwtTokenVerifier.getJwtTokenInfo(receivedToken));
+        System.out.println("verifiedJwt.........................."+verifiedJwt);
 
-        return verifiedJwt != null;
+        RequestContextHolder.currentRequestAttributes().setAttribute("accessToken", verifiedJwt, RequestAttributes.SCOPE_REQUEST);
+
+        return true;
     }
 
     @Override

@@ -67,7 +67,7 @@ public class BookServiceImpl implements BookService, CommonService {
 
         // TODO: CommonService로 빼려고 했으나 뭔가 잘 안됨... 나중에 바꿔보자
         JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(JwtProperties.SECRET);
-        DecodedJWT jwt = jwtTokenVerifier.verify(Objects.toString(accessToken),false);
+        DecodedJWT jwt = jwtTokenVerifier.verify(Objects.toString(accessToken));
         Long userKey = jwt.getClaim("user_key").asLong();
         log.info("userKey....................................."+userKey);
 

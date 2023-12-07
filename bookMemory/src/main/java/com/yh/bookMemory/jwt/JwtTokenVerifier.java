@@ -23,27 +23,21 @@ import java.util.Map;
 @Log4j2
 public class JwtTokenVerifier {
     private final JWTVerifier verifier;
-
     public JwtTokenVerifier(String secret) {
         Algorithm algorithm = Algorithm.HMAC512(secret);
         verifier = JWT.require(algorithm).build();
     }
 
-    // @param ignore : true - 만료됐어도 무시하고 리턴 false - 만료됐다면 예외던지기
-    public DecodedJWT verify(String token, boolean ignore) throws TokenExpiredException {
-        if(ignore) {
-            try {
-                verifier.verify(token);
-            } catch(TokenExpiredException e) {
-                return verifier.verify(token);
-            }
-        }
+    public DecodedJWT verify(String token) throws JWTVerificationException {
         return verifier.verify(token);
     }
 
+    public DecodedJWT getDecodedJwt(String token) {
+        return JWT.decode(token);
+    }
+
     public Object getJwtInfo(String receivedToken, String key) {
-        JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(JwtProperties.SECRET);
-        DecodedJWT jwt = jwtTokenVerifier.verify(receivedToken, true);
+        DecodedJWT jwt = getDecodedJwt(receivedToken);
 
         log.info("getJwtInfo................................"+jwt.toString());
         if(key == "user_name") {
@@ -56,7 +50,7 @@ public class JwtTokenVerifier {
     }
 
     //
-    public ResponseEntity<String> getJwtTokenInfo(String receivedToken) {
+    public String getJwtTokenInfo(String receivedToken) {
         String accessToken = null;
         Date accessTokenExp = null;
         String socialAccessToken = null;
@@ -64,33 +58,26 @@ public class JwtTokenVerifier {
         String userName = null;
         String email = null;
 
-        DecodedJWT decodedJWT = verify(receivedToken, true);
-        if(decodedJWT != null) {
-            accessToken = receivedToken;
-            accessTokenExp = decodedJWT.getExpiresAt();
-            userName = (String)decodedJWT.getSubject();
-            userKey = decodedJWT.getClaim("user_key").asLong();
-            email = decodedJWT.getClaim("user_email").asString();
-            socialAccessToken = decodedJWT.getClaim("socialAccessToken").asString();
+        DecodedJWT decodedJWT = getDecodedJwt(receivedToken);
 
-            log.info("accessToken......................"+accessToken);
-            log.info("accessTokenExp......................"+accessTokenExp);
-            log.info("socialAccessToken......................"+socialAccessToken);
-            log.info("userName......................"+userName);
-            log.info("userKey......................"+userKey);
-            log.info("email......................"+email);
-            log.info("socialAccessToken......................"+socialAccessToken);
-
-            Date now = new Date();
-            boolean isExpired = accessTokenExp.before(now);
-
-            if(isExpired) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-                //throw new TokenExpiredException("The Access Token has expired.", accessTokenExp.toInstant());
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        if(decodedJWT == null) {
+            return null;
         }
+
+        accessToken = receivedToken;
+        accessTokenExp = decodedJWT.getExpiresAt();
+        userName = (String)decodedJWT.getSubject();
+        userKey = decodedJWT.getClaim("user_key").asLong();
+        email = decodedJWT.getClaim("user_email").asString();
+        socialAccessToken = decodedJWT.getClaim("socialAccessToken").asString();
+
+        log.info("accessToken......................"+accessToken);
+        log.info("accessTokenExp......................"+accessTokenExp);
+        log.info("socialAccessToken......................"+socialAccessToken);
+        log.info("userName......................"+userName);
+        log.info("userKey......................"+userKey);
+        log.info("email......................"+email);
+        log.info("socialAccessToken......................"+socialAccessToken);
 
         String verifiedJwt = JWT.create()
                 .withSubject(userName)
@@ -102,10 +89,6 @@ public class JwtTokenVerifier {
 
         log.info("verifiedJwt......................"+verifiedJwt);
 
-//        Map<String,Object> resultMap = new HashMap<>();
-//        resultMap.put("verifiedJwt", verifiedJwt);
-        //resultMap.put("userKey",userKey);
-
-        return ResponseEntity.ok(verifiedJwt);
+        return verifiedJwt;
     }
 }
