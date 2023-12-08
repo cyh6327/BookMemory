@@ -7,6 +7,12 @@
         <div class="d-flex justify-end px-3">
             <v-btn-alt
                 v-if="isLogined()"
+                to="/email"
+                rel="noopener noreferrer"
+                text="오늘의 문장"
+            />
+            <v-btn-alt
+                v-if="isLogined()"
                 to="/book/create"
                 rel="noopener noreferrer"
                 text="책 추가"

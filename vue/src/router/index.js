@@ -35,6 +35,11 @@ const routes = [
     name: 'bookDetail',
     component: () => import('../views/BookDetail.vue'),
   },
+  {
+    path: '/email',
+    name: 'sendEmail',
+    component: () => import('../views/SendEmail.vue'),
+  },
 ]
 
 const router = createRouter({
