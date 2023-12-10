@@ -1,12 +1,12 @@
 <template>
   <v-app>
-    <VueHeader></VueHeader>
+    <VueHeader />
     <router-view/>
   </v-app>
 </template>
 
 <script>
-import VueHeader from './components/layout/VueHeader.vue'
+import VueHeader from '@/components/layout/VueHeader.vue'
 
 export default {
   name: 'App',

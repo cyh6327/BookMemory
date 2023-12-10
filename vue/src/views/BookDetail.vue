@@ -1,75 +1,72 @@
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRoute } from "vue-router";
+import axios from "axios"
+
+let bookId = null;
+const title = ref('');
+const author = ref('');
+const sentences = ref([]);
+
+onMounted(() => {
+  const route = useRoute();
+  bookId = route.params.bookId;
+
+  axios.get("/book/detail/"+bookId)
+  .then((res) => {
+    console.log(res.data);
+    title.value = res.data.bookInfo.title;
+    author.value = res.data.bookInfo.author;
+
+    const bookSentences = res.data.bookSentences;
+    for(let sentence of bookSentences) {
+      console.log(sentence.sentenceText);
+      sentence.sentenceText = sentence.sentenceText.replaceAll("<br>", "\r\n");
+      console.log("replaced:",sentence.sentenceText);
+      sentences.value.push(sentence.sentenceText);
+      console.log(sentences.value);
+    }
+  })
+});
+
+function insertSentenceFromFile() {
+  axios.post("/book/sentence/file/"+bookId+"/"+title.value)
+  .then((res) => {
+      console.log(res.data);
+  });
+}
+</script>
+
 <template>
   <v-main id="book_detail">
-      <h2 class="mb-5">{{ book.bookInfo.title }}</h2>
-      <h4 style="color:gray"> {{ book.bookInfo.author }}</h4>
+      <h2 class="mb-5">{{ title }}</h2>
+      <h4 style="color:gray"> {{ author }}</h4>
     <div class="btn_box d-flex justify-end">
       <v-btn-alt
-        v-on:click="insertSentenceFromFile"
+        @click="insertSentenceFromFile"
         rel="noopener noreferrer"
         text="파일로 문장 추가"
       />
     </div>
     <v-container class="rounded-shaped">
-      <ul lass="my-10">
+      <!-- <ul lass="my-10">
         <li class="pa-10">dsfdsfsdfdsfsdsdf</li>
-      </ul>
+      </ul> -->
     <!-- <v-container style="padding: 0;"> -->
-      <ul class="my-10" v-for="sentence in book.bookSentences" :key="sentence">
-        <li class="pa-10" style="text-align:left;">{{ sentence.sentenceText }}</li>
+      <ul class="py-10" v-for="sentence in sentences" :key="sentence">
+        <li class="pa-10" style="text-align:left;">{{ sentence }}</li>
       </ul>
+      <!-- <ul>
+        <li>{{ sentences }}</li>
+      </ul> -->
     </v-container>
   </v-main>
 
 </template>
 
-<script>
-export default {
-  name: 'BookDetail',
-  data() {
-    return {
-      book: {
-        bookInfo: {
-        },
-        bookSentences: {},
-      }, 
-    };
-  },
-  mounted() {
-    this.get();
-  },
-  methods: {
-    get() {
-        const bookId = this.$route.params.bookId;
-        console.log(bookId);
-        this.axios.get("/book/detail/"+bookId).then((response) => {
-            this.book = response.data;
-            console.log(response.data);
-        });
-    },
-    insertSentenceFromFile() {
-      console.log(this.book.bookInfo);
-      const bookId = this.book.bookInfo.bookId;
-      const title = this.book.bookInfo.title;
-      console.log(bookId);
-      console.log(title);
-
-      this.axios.post("/book/sentence/file/"+bookId+"/"+title)
-      .then((response) => {
-          this.book = response.data;
-          console.log(response.data);
-
-          // this.$router.push({
-          //     path: "/book/detail/"+this.book.bookId,
-          // });
-      });
-    },
-  }
-};
-</script>
-
 <style>
 .v-main {
-  width:60%;
+  width:80%;
   margin:50px auto;
 }
 .v-container {
@@ -84,5 +81,9 @@ export default {
 }
 ul {
   list-style:none;
+  border-bottom: 1px solid rgba(208,173,240,0.3);
+}
+li {
+	white-space: pre-wrap;
 }
 </style>

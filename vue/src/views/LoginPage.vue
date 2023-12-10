@@ -22,8 +22,6 @@ function sendUserInfo(userData) {
     });
   })
 }
-
-
 </script>
 
 <template>

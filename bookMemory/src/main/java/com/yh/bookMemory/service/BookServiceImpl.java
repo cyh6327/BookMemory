@@ -145,7 +145,8 @@ public class BookServiceImpl implements BookService, CommonService {
 
         for(String str : splitByHr) {
             log.info("splitByHr............."+str);
-
+            str = str.replaceAll("<br>\\s*", "<br>");
+            str = str.replaceAll("\\s*<br>", "<br>");
             String processedText = removeExtraSpacesAfterDot(str.trim());
             log.info("removeBlank............."+processedText);
 
@@ -234,13 +235,13 @@ public class BookServiceImpl implements BookService, CommonService {
         List<BookSentences> bookSentenceList = bookSentencesRepository.findByBookInfoBookId(bookId);
 
         //TODO: 각 문장 앞에 별(favorite_flag) 추가하고 db업데이트 로직 구성
-        List<BookSentences> sentenceList = bookSentenceList.stream()
-                .map(bookSentence -> new BookSentences(bookSentence.getSentenceText().replace("<br>", "\r\n")))
-                .collect(Collectors.toList());
+//        List<BookSentences> sentenceList = bookSentenceList.stream()
+//                .map(bookSentence -> new BookSentences(bookSentence.getSentenceText().replace("<br>", "\r\n")))
+//                .collect(Collectors.toList());
 
         List<BookSentencesDTO> sentenceListDto = new ArrayList<>();
 
-        for(BookSentences sentence : sentenceList){
+        for(BookSentences sentence : bookSentenceList){
             BookSentencesDTO dto = sentenceEntityToDto(sentence);
 
             sentenceListDto.add(dto);

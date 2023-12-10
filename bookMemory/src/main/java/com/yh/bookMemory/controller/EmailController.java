@@ -90,7 +90,7 @@ public class EmailController {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(username)); // 발신자 주소
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email)); // 수신자 주소
-            message.setSubject("오늘의 문장이 도착했습니다!"); // 이메일 제목
+            message.setSubject("오늘의 문장이 도착했습니다 :D"); // 이메일 제목
 
             List<BookSentencesDTO> sentenceList = emailService.pickRandomSentences(5);
             //List<String> sentenceContentList = sentenceList.stream().map(BookSentencesDTO::getSentenceText).toList();
@@ -109,7 +109,7 @@ public class EmailController {
 
                 String sentenceSection = "<table role=\"presentation\" style=\"width:100%;background:#fbfbfb;border:0\" cellpadding=\"0\" cellspacing=\"0\"><tbody><tr><td style=\"word-break:break-all;text-align:left;margin:0px;line-height:1.7;word-break:break-word;font-size:14px;font-family:noto sans kr,noto sans cjk kr,noto sans cjk,Malgun Gothic,apple sd gothic neo,nanum gothic,malgun gothic,dotum,arial,helvetica,Meiryo,MS Gothic,sans-serif!important;color:#000000;padding:30px\"><span style=\"padding:0;  list-style-type: none;\">"
                         +bookSentence+"</span></td></tr></tbody></table>";
-                String authorSection = "<table style=\"width:100%;background:#fbfbfb;border:0\" cellpadding=\"0\" cellspacing=\"0\"><tbody><tr><td style=\"word-break:break-all;text-align:left;margin:0px;line-height:1.7;word-break:break-word;font-size:14px;font-family:noto sans kr,noto sans cjk kr,noto sans cjk,Malgun Gothic,apple sd gothic neo,nanum gothic,malgun gothic,dotum,arial,helvetica,Meiryo,MS Gothic,sans-serif!important;color:#000000;padding:0 30px 30px 30px;\"><div style=\"text-align:left\"><span style=\"color:#888888;\">- ["
+                String authorSection = "<table style=\"width:100%;background:#fbfbfb;border:0\" cellpadding=\"0\" cellspacing=\"0\"><tbody><tr><td style=\"word-break:break-all;text-align:left;margin:0px;line-height:1.7;word-break:break-word;font-size:14px;font-family:noto sans kr,noto sans cjk kr,noto sans cjk,Malgun Gothic,apple sd gothic neo,nanum gothic,malgun gothic,dotum,arial,helvetica,Meiryo,MS Gothic,sans-serif!important;color:#000000;padding:0 30px 30px 30px;border-bottom: 3px solid rgba(208,173,240,0.5);\"><div style=\"text-align:left\"><span style=\"color:#888888;\">- ["
                 +bookTitle+"] "+author+"</span></div></td></tr></tbody></table>";
 
 
