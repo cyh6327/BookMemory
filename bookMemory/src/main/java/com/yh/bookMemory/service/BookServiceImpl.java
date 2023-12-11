@@ -68,7 +68,7 @@ public class BookServiceImpl implements BookService, CommonService {
         Users user = userService.getUserInfoByUserKey(userKey);
         dto.setUsers(user);
 
-        BookInfo entity = dtoToEntitiy(dto);
+        BookInfo entity = dto.toEntity();
 
         BookInfo createdBook = bookInfoRepository.save(entity);
         BookInfoDTO createdBookDTO = entityToDto(createdBook);

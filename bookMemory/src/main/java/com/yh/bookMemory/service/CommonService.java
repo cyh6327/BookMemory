@@ -16,22 +16,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import java.util.Objects;
 
 public interface CommonService {
-    default BookInfo dtoToEntitiy(BookInfoDTO dto) {
-        BookInfo entity = BookInfo.builder()
-                .bookId(dto.getBookId())
-                .title(dto.getTitle())
-                .author(dto.getAuthor())
-                .readingStartDate(dto.getReadingStartDate())
-                .readingEndDate(dto.getReadingEndDate())
-                .rating(dto.getRating())
-                .review(dto.getReview())
-                .memo(dto.getMemo())
-                .favoriteFlag(dto.getFavoriteFlag())
-                .genre(dto.getGenre())
-                .users(dto.getUsers())
-                .build();
-        return entity;
-    }
+
 
     default BookInfoDTO entityToDto(BookInfo entity) {
         BookInfoDTO dto = BookInfoDTO.builder()

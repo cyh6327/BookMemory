@@ -1,6 +1,7 @@
 package com.yh.bookMemory.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.yh.bookMemory.entity.BookInfo;
 import com.yh.bookMemory.entity.Users;
 import jakarta.persistence.Column;
 import lombok.*;
@@ -33,4 +34,20 @@ public class BookInfoDTO {
     private Character favoriteFlag;
     private String genre;
     private Users users;
+
+    public BookInfo toEntity() {
+        return BookInfo.builder()
+                .bookId(bookId)
+                .title(title)
+                .author(author)
+                .readingStartDate(readingStartDate)
+                .readingEndDate(readingEndDate)
+                .rating(rating)
+                .review(review)
+                .memo(memo)
+                .favoriteFlag(favoriteFlag)
+                .genre(genre)
+                .users(users)
+                .build();
+    }
 }
