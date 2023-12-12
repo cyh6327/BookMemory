@@ -113,6 +113,7 @@ public class BookServiceImpl implements BookService, CommonService {
     private static String removeExtraSpacesAfterDot(String input) {
         // 정규식 패턴: ". " 뒤의 여러 공백을 하나로 대체
         String regex = "\\.\\s+";
+        //String regex = "\\s{2,}";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(input);
 
@@ -120,6 +121,7 @@ public class BookServiceImpl implements BookService, CommonService {
         StringBuffer result = new StringBuffer();
         while (matcher.find()) {
             matcher.appendReplacement(result, ". ");
+            //matcher.appendReplacement(result, " ");
         }
         matcher.appendTail(result);
 
@@ -147,6 +149,7 @@ public class BookServiceImpl implements BookService, CommonService {
             log.info("splitByHr............."+str);
             str = str.replaceAll("<br>\\s*", "<br>");
             str = str.replaceAll("\\s*<br>", "<br>");
+            str = str.replaceAll("<br><br>", "<br>");
             String processedText = removeExtraSpacesAfterDot(str.trim());
             log.info("removeBlank............."+processedText);
 

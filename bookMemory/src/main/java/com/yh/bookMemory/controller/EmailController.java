@@ -60,7 +60,7 @@ public class EmailController {
 ////            log.info("sendUser name"+);
         }
 
-        if(emailService.sendMail(email)) {
+        if(emailService.sendMail(email, 5)) {
             String redirectUri = "/email/send";
             response.sendRedirect(redirectUri);
         } else {

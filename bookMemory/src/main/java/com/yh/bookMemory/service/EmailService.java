@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface EmailService {
 
-    List<BookSentencesDTO> pickRandomSentences(int limit);
+    List<BookSentencesDTO> pickRandomSentences(double sortKey, long sendCnt, int limit);
 
-    boolean sendMail(String email);
+    boolean sendMail(String email, int limit);
 }

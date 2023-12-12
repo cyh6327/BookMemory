@@ -2,12 +2,15 @@ package com.yh.bookMemory.service;
 
 import com.yh.bookMemory.dto.BookSentencesDTO;
 import com.yh.bookMemory.dto.SentenceLogDTO;
+import com.yh.bookMemory.dto.UserDTO;
 import com.yh.bookMemory.entity.BookSentences;
 import com.yh.bookMemory.entity.SentenceLog;
+import com.yh.bookMemory.entity.Users;
 import com.yh.bookMemory.jwt.JwtProperties;
 import com.yh.bookMemory.jwt.JwtTokenVerifier;
 import com.yh.bookMemory.repository.BookSentencesRepository;
 import com.yh.bookMemory.repository.SentenceLogRepository;
+import com.yh.bookMemory.repository.UserRepository;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -37,7 +40,13 @@ public class EmailServiceImpl implements EmailService, CommonService {
     BookService bookService;
 
     @Autowired
+    UserService userService;
+
+    @Autowired
     SentenceLogRepository sentenceLogRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     private final JavaMailSender javaMailSender;
 
@@ -48,26 +57,13 @@ public class EmailServiceImpl implements EmailService, CommonService {
     private String password;
 
     @Override
-    public List<BookSentencesDTO> pickRandomSentences(int limit) {
+    public List<BookSentencesDTO> pickRandomSentences(double sortKey, long sendCnt, int limit) {
         log.info("limit...................."+limit);
         log.info("랜덤 문장 선정.....................................");
-        List<BookSentences> sentenceList = bookSentencesRepository.pickRandomSentences(limit);
 
-        // sentence_log 테이블에 선정한 문장 저장(중복 방지)
-        Object accessToken = Objects.requireNonNull(RequestContextHolder.getRequestAttributes()).getAttribute("accessToken", RequestAttributes.SCOPE_REQUEST);
-        if(accessToken == null) {
-            throw new NullPointerException("accessToken 값이 없습니다.");
-        }
+        List<BookSentences> sentenceList = bookSentencesRepository.pickRandomSentences(sortKey, sendCnt, limit);
 
-        JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(JwtProperties.SECRET);
-        Object jwtInfo = jwtTokenVerifier.getJwtInfo(Objects.toString(accessToken), "user_key");
-
-        if(jwtInfo == null) {
-            throw new NullPointerException("user_key 값이 없습니다.");
-        }
-
-        Date today = new Date();
-        Long userKey = Long.parseLong(jwtInfo.toString());
+       // Date today = new Date();
 //        SentenceLogDTO sentenceLogDTO = SentenceLogDTO.builder()
 //                .sendDate(today)
 //                .bookSentences()
@@ -88,7 +84,40 @@ public class EmailServiceImpl implements EmailService, CommonService {
     }
 
     @Override
-    public boolean sendMail(String email) {
+    public boolean sendMail(String email, int limit) {
+
+        Object accessToken = Objects.requireNonNull(RequestContextHolder.getRequestAttributes()).getAttribute("accessToken", RequestAttributes.SCOPE_REQUEST);
+        if(accessToken == null) {
+            throw new NullPointerException("accessToken 값이 없습니다.");
+        }
+
+        JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(JwtProperties.SECRET);
+        Object jwtInfo = jwtTokenVerifier.getJwtInfo(Objects.toString(accessToken), "user_key");
+
+        if(jwtInfo == null) {
+            throw new NullPointerException("user_key 값이 없습니다.");
+        }
+
+        Long userKey = Long.parseLong(jwtInfo.toString());
+
+        Users receiver =  userService.getUserInfoByUserKey(userKey);
+        UserDTO receiverDTO = receiver.toDTO();
+
+        double sortKey = receiverDTO.getSortKey();
+        //random = 0.42267108331583736;
+
+        if(sortKey == 0.0) {
+            log.info("sortKey 초기 생성");
+            sortKey = Math.random();
+            receiverDTO.setSortKey(sortKey);
+            // sortKey 업데이트
+            userRepository.saveAndFlush(receiverDTO.toEntity());
+        }
+
+        log.info("sortKey....................................."+sortKey);
+
+        Long sendCnt = receiverDTO.getSendCnt();
+
         // SMTP 서버 설정
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com"); // SMTP 서버 주소
@@ -110,7 +139,7 @@ public class EmailServiceImpl implements EmailService, CommonService {
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email)); // 수신자 주소
             message.setSubject("오늘의 문장이 도착했습니다 :D"); // 이메일 제목
 
-            List<BookSentencesDTO> sentenceList = pickRandomSentences(5);
+            List<BookSentencesDTO> sentenceList = pickRandomSentences(sortKey, sendCnt, limit);
 
             StringBuilder layoutBuilder = new StringBuilder();
 
@@ -141,6 +170,11 @@ public class EmailServiceImpl implements EmailService, CommonService {
             Transport.send(message);
 
             log.info("이메일이 성공적으로 전송되었습니다.");
+
+            // user sendCnt 컬럼 업데이트
+            receiverDTO.setSendCnt(sendCnt + limit);
+            userRepository.saveAndFlush(receiverDTO.toEntity());
+
             return true;
         } catch (MessagingException e) {
             log.info("이메일 전송 중 오류가 발생했습니다.");
