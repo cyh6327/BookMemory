@@ -1,10 +1,8 @@
 package com.yh.bookMemory.service;
 
 import com.yh.bookMemory.dto.BookSentencesDTO;
-import com.yh.bookMemory.dto.SentenceLogDTO;
 import com.yh.bookMemory.dto.UserDTO;
 import com.yh.bookMemory.entity.BookSentences;
-import com.yh.bookMemory.entity.SentenceLog;
 import com.yh.bookMemory.entity.Users;
 import com.yh.bookMemory.jwt.JwtProperties;
 import com.yh.bookMemory.jwt.JwtTokenVerifier;
@@ -18,16 +16,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
-
-import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Log4j2

@@ -9,7 +9,7 @@ import java.awt.print.Book;
 import java.util.List;
 import java.util.Optional;
 
-public interface BookSentencesRepository extends JpaRepository<BookSentences, Long>{
+public interface BookSentencesRepository extends JpaRepository<BookSentences, Long> {
     List<BookSentences> findByBookInfoBookId(Long bookId);
 
     //TODO: postgresql nativeQuery 사용시 order by 난수가 안되고 random() 을 사용해야만 적용됨
