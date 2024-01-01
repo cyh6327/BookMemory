@@ -56,9 +56,6 @@ function insertSentenceFromFile() {
       <ul class="py-10" v-for="sentence in sentences" :key="sentence">
         <li class="pa-10" style="text-align:left;">{{ sentence }}</li>
       </ul>
-      <!-- <ul>
-        <li>{{ sentences }}</li>
-      </ul> -->
     </v-container>
   </v-main>
 

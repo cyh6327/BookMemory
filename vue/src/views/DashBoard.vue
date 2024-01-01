@@ -11,14 +11,14 @@
         >
             <v-container>
                 <v-row v-if="this.bookList.length != 0">
-                    <v-col cols="3" v-for="book in bookList" :key="book">
+                    <v-col cols="4" v-for="book in bookList" :key="book">
                     <v-card
                         color="#952175"
                         theme="dark"
                     >
-                        <div class="card-container d-flex flex-no-wrap justify-space-between">
-                        <div>
-                            <v-card-title>
+                        <div class="card-container d-flex">
+                        <div style="width:60%">
+                            <v-card-title style="padding: 20px 20px 5px 20px;font-size: 18px;">
                                 <RouterLink
                                     :to="{ path: '/book/detail/'+book.bookId }"
                                     active-class="active"
@@ -48,7 +48,8 @@
                             size="125"
                             rounded="0"
                         >
-                            <v-img src="@/assets/book.jpg"></v-img>
+                        <v-img :src="require(`@/assets/${book.title}.jpg`)"></v-img>
+                            <!-- <v-img src="@/assets/book.jpg"></v-img> -->
                         </v-avatar>
                         </div>
                     </v-card>
@@ -99,15 +100,12 @@ export default {
     min-height: 200px;
     background-color: transparent;
 }
-.v-card-title {
-    padding: 20px 20px 5px 20px;
-}
 .card-container {
     height: 200px;
 }
 .v-avatar {
-    width: 150px !important; 
-    height: 200px !important; 
+    width: 40% !important; 
+    height: 100% !important; 
     padding: 15px; 
     margin: 0 !important;
 }
