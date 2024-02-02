@@ -1,58 +1,39 @@
 package com.yh.bookMemory.controller;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.gson.GsonFactory;
-import com.yh.bookMemory.ConfigUtils;
+import com.yh.bookMemory.dto.BookSentencesDTO;
 import com.yh.bookMemory.dto.UserDTO;
+import com.yh.bookMemory.entity.BookSentences;
 import com.yh.bookMemory.entity.Users;
 import com.yh.bookMemory.jwt.CreateJwt;
-import com.yh.bookMemory.jwt.JwtProperties;
-import com.yh.bookMemory.jwt.JwtReturner;
-import com.yh.bookMemory.jwt.JwtTokenVerifier;
+import com.yh.bookMemory.repository.BookSentencesRepository;
 import com.yh.bookMemory.service.CommonService;
 import com.yh.bookMemory.service.UserService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @Log4j2
-public class LoginController {
+public class LoginController implements CommonService {
 
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private BookSentencesRepository bookSentencesRepository;
+
     @PostMapping("/login")
-    public ResponseEntity<JwtReturner> loginPage(@RequestBody HashMap<String,String> userData) throws GeneralSecurityException, IOException {
+    public ResponseEntity<Map<String, Object>> loginPage(@RequestBody HashMap<String,String> userData) throws GeneralSecurityException, IOException {
 
         log.info("userData................................."+userData);
 
@@ -85,7 +66,39 @@ public class LoginController {
         HttpHeaders header = new HttpHeaders();
         header.set("Set-Cookie", cookie.toString());
 
-        return new ResponseEntity<>(new JwtReturner(accessToken, refreshToken), header, HttpStatus.valueOf(201));
+        // 책 문장키 랜덤 정렬한 배열 생성 후 로컬스토리지에 저장
+        List<BookSentences> allSentenceList = bookSentencesRepository.findAll();
+
+        String sentenceSortKey = "";
+
+        if(!allSentenceList.isEmpty()) {
+            List<BookSentencesDTO> allSentenceListDto = new ArrayList<>();
+            for(BookSentences sentence : allSentenceList){
+                BookSentencesDTO sentencesDTO = sentenceEntityToDto(sentence);
+
+                allSentenceListDto.add(sentencesDTO);
+            }
+
+            List<String> allSentenceIdList = new ArrayList<>(allSentenceListDto.stream()
+                    .map(sentencesDTO -> sentencesDTO.getBookSentenceId().toString())
+                    .toList());
+
+            Collections.shuffle(allSentenceIdList);
+
+            log.info("shuffled list....................."+allSentenceIdList);
+
+            sentenceSortKey = String.join(",",allSentenceIdList);
+
+            log.info("shuffled list str....................."+sentenceSortKey);
+        }
+
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("accessToken", accessToken);
+        resultMap.put("refToken", refreshToken);
+
+        if(!sentenceSortKey.equals("")) resultMap.put("sentenceSortKey", sentenceSortKey);
+
+        return new ResponseEntity<>(resultMap, header, HttpStatus.valueOf(201));
     }
 
 

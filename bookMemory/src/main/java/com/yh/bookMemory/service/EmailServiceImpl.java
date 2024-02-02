@@ -6,6 +6,7 @@ import com.yh.bookMemory.entity.BookSentences;
 import com.yh.bookMemory.entity.Users;
 import com.yh.bookMemory.jwt.JwtProperties;
 import com.yh.bookMemory.jwt.JwtTokenVerifier;
+import com.yh.bookMemory.repository.BookSentencesCustomRepository;
 import com.yh.bookMemory.repository.BookSentencesRepository;
 import com.yh.bookMemory.repository.SentenceLogRepository;
 import com.yh.bookMemory.repository.UserRepository;
@@ -20,7 +21,13 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
-import java.util.*;
+
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.stream.Stream;
 
 @Service
 @Log4j2
@@ -39,6 +46,9 @@ public class EmailServiceImpl implements EmailService, CommonService {
     SentenceLogRepository sentenceLogRepository;
 
     @Autowired
+    BookSentencesCustomRepository bookSentencesCustomRepository;
+
+    @Autowired
     UserRepository userRepository;
 
     private final JavaMailSender javaMailSender;
@@ -50,13 +60,33 @@ public class EmailServiceImpl implements EmailService, CommonService {
     private String password;
 
     @Override
-    public List<BookSentencesDTO> pickRandomSentences(double sortKey, long sendCnt, int limit) {
+    public List<BookSentencesDTO> pickRandomSentences(String sentenceSortKey, long sendCnt, int limit) throws Exception {
         log.info("limit...................."+limit);
         log.info("랜덤 문장 선정.....................................");
 
-        List<BookSentences> sentenceList = bookSentencesRepository.pickRandomSentences(sortKey, sendCnt, limit);
+        String[] sentenceSortKeyList = sentenceSortKey.split(",");
+        Long[] parsedSentenceSortKeyList = Stream.of(sentenceSortKeyList).mapToLong(Long::parseLong).boxed().toArray(Long[]::new);
+        List<BookSentencesDTO> sentencesList = new ArrayList<>();
 
-       // Date today = new Date();
+        for(int i=0; i<limit; i++) {
+            BookSentences sentence = null;
+            if(sentenceSortKeyList.length != 0) {
+                sentence = bookSentencesRepository.findByBookSentenceId(parsedSentenceSortKeyList[i+sendCnt]);
+            } else {
+                sentence = bookSentencesRepository.findByBookSentenceId((long) i+sendCnt);
+            }
+            sentencesList.add(sentenceEntityToDto(sentence));
+        }
+
+        log.info("sentencesList.");
+
+        //List<BookSentences> sentenceList = bookSentencesRepository.pickRandomSentences(sortKey, sendCnt, limit);
+        //List<BookSentences> sentenceList = bookSentencesCustomRepository.pickRandomSentences(sortKey, 0, limit);
+
+
+
+
+//        Date today = new Date();
 //        SentenceLogDTO sentenceLogDTO = SentenceLogDTO.builder()
 //                .sendDate(today)
 //                .bookSentences()
@@ -65,19 +95,30 @@ public class EmailServiceImpl implements EmailService, CommonService {
 //                SentenceLog
 //        sentenceLogRepository.save()
 
-        List<BookSentencesDTO> sentenceListDto = new ArrayList<>();
-        for(BookSentences sentence : sentenceList){
-            BookSentencesDTO dto = sentenceEntityToDto(sentence);
 
-            sentenceListDto.add(dto);
-        }
-        log.info("sentenceListDto......................."+sentenceListDto);
 
-        return sentenceListDto;
+//        // 대칭키 생성
+//        SecretKey secretKey = generateSecretKey();
+//
+//        // 데이터 암호화
+//        String encryptedData = encryptData(str, secretKey);
+//
+//        System.out.println("Original Data: " + str);
+//        System.out.println("Encrypted Data: " + encryptedData);
+//
+//        // 데이터 복호화
+//        String decryptedData = decryptData(encryptedData, secretKey);
+//        System.out.println("Decrypted Data: " + decryptedData);
+
+        //return sentenceListDto;
+       return null;
     }
 
     @Override
-    public boolean sendMail(String email, int limit) {
+    public boolean sendMail(String email, String sentenceSortKey, int limit) {
+
+        log.info("sendMail Service start ...................");
+        log.info("sentenceSortKey ..................." + sentenceSortKey);
 
         Object accessToken = Objects.requireNonNull(RequestContextHolder.getRequestAttributes()).getAttribute("accessToken", RequestAttributes.SCOPE_REQUEST);
         if(accessToken == null) {
@@ -96,20 +137,7 @@ public class EmailServiceImpl implements EmailService, CommonService {
         Users receiver =  userService.getUserInfoByUserKey(userKey);
         UserDTO receiverDTO = receiver.toDTO();
 
-        double sortKey = receiverDTO.getSortKey();
-        //random = 0.42267108331583736;
-
-        if(sortKey == 0.0) {
-            log.info("sortKey 초기 생성");
-            sortKey = Math.random();
-            receiverDTO.setSortKey(sortKey);
-            // sortKey 업데이트
-            userRepository.saveAndFlush(receiverDTO.toEntity());
-        }
-
-        log.info("sortKey....................................."+sortKey);
-
-        Long sendCnt = receiverDTO.getSendCnt();
+        int sendCnt = receiverDTO.getSendCnt();
 
         // SMTP 서버 설정
         Properties props = new Properties();
@@ -132,6 +160,8 @@ public class EmailServiceImpl implements EmailService, CommonService {
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email)); // 수신자 주소
             message.setSubject("오늘의 문장이 도착했습니다 :D"); // 이메일 제목
 
+            // TODO: sortKey 파라미터로 넘어온 것으로 세팅 해서 넘기기
+            String sortKey = "";
             List<BookSentencesDTO> sentenceList = pickRandomSentences(sortKey, sendCnt, limit);
 
             StringBuilder layoutBuilder = new StringBuilder();
@@ -140,16 +170,16 @@ public class EmailServiceImpl implements EmailService, CommonService {
 
             StringBuilder bodybuilder = new StringBuilder();
 
-            for(BookSentencesDTO dto : sentenceList) {
-                String bookSentence = dto.getSentenceText();
-                Long bookId = dto.getBookInfo().getBookId();
-                String bookTitle = bookService.getBookInfo(bookId).getTitle();
-                String author = bookService.getBookInfo(bookId).getAuthor();
-
-                String sentenceSection = "<div style=\"border:3px solid rgba(208,173,240,0.3);border-radius: 20px;margin: 50px 0;\"><div style=\"word-break:break-all;text-align:left;margin:0px;line-height:1.7;word-break:break-word;font-size:14px;font-family:noto sans kr,noto sans cjk kr,noto sans cjk,Malgun Gothic,apple sd gothic neo,nanum gothic,malgun gothic,dotum,arial,helvetica,Meiryo,MS Gothic,sans-serif!important;color:#000000;padding:30px\"><span style=\"padding:0;list-style-type:none\">"+bookSentence+"</span></div><div style=\"padding:0 30px 30px;\"><span style=\"color:#888888\">- ["+bookTitle+"] "+author+"</span></div></div>";
-
-                bodybuilder.append(sentenceSection);
-            }
+//            for(BookSentencesDTO dto : sentenceList) {
+//                String bookSentence = dto.getSentenceText();
+//                Long bookId = dto.getBookInfo().getBookId();
+//                String bookTitle = bookService.getBookInfo(bookId).getTitle();
+//                String author = bookService.getBookInfo(bookId).getAuthor();
+//
+//                String sentenceSection = "<div style=\"border:3px solid rgba(208,173,240,0.3);border-radius: 20px;margin: 50px 0;\"><div style=\"word-break:break-all;text-align:left;margin:0px;line-height:1.7;word-break:break-word;font-size:14px;font-family:noto sans kr,noto sans cjk kr,noto sans cjk,Malgun Gothic,apple sd gothic neo,nanum gothic,malgun gothic,dotum,arial,helvetica,Meiryo,MS Gothic,sans-serif!important;color:#000000;padding:30px\"><span style=\"padding:0;list-style-type:none\">"+bookSentence+"</span></div><div style=\"padding:0 30px 30px;\"><span style=\"color:#888888\">- ["+bookTitle+"] "+author+"</span></div></div>";
+//
+//                bodybuilder.append(sentenceSection);
+//            }
 
             String body = bodybuilder.toString();
 
@@ -172,6 +202,10 @@ public class EmailServiceImpl implements EmailService, CommonService {
         } catch (MessagingException e) {
             log.info("이메일 전송 중 오류가 발생했습니다.");
             return false;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
