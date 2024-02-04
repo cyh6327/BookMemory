@@ -29,7 +29,8 @@
       sendEmail(e) {
         e.preventDefault();
         const email = this.email;
-        this.axios.post("/email/send/"+email)
+        const sentenceSortKey = localStorage.getItem('sentenceSortKey');
+        this.axios.post("/email/send/"+email+"/"+sentenceSortKey)
         .then((response) => {
           console.log(response);
         });

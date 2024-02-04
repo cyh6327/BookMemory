@@ -79,11 +79,13 @@ export default {
     get() {
         this.axios.get("/book")
         .then((response) => {
-            //this.book = response.data;
-            console.log(response.data);
-            this.bookList = response.data;
-            console.log(this.bookList);
-            console.log(this.bookList[0]);
+            // 로그인 전 최초 메인 페이지 접속시 상태코드=204(no content), 로그인 이후 통신 성공시 상태코드=200
+            if(response.status == 200) {
+                console.log(response)
+                this.bookList = response.data;
+                console.log(this.bookList);
+                console.log(this.bookList[0]);
+            }
         })
         .catch((error) => {
             console.log(error);

@@ -6,25 +6,25 @@
         <v-spacer />
         <div class="d-flex justify-end px-3">
             <v-btn-alt
-                v-if="isLogined()"
+                v-if="isLogined"
                 to="/email"
                 rel="noopener noreferrer"
                 text="오늘의 문장"
             />
             <v-btn-alt
-                v-if="isLogined()"
+            v-if="isLogined"
                 to="/book/create"
                 rel="noopener noreferrer"
                 text="책 추가"
             />
             <v-btn-alt
-                v-if="!isLogined()"
+            v-if="!isLogined"
                 to="/login"
                 rel="noopener noreferrer"
                 text="로그인"
             />
             <v-btn-alt
-                v-if="isLogined()"
+            v-if="isLogined"
                 rel="noopener noreferrer"
                 text="로그아웃"
             />
@@ -35,13 +35,12 @@
 <script>
 export default {
     name: "VueHeader",
-    data() {
-    },
-    methods: {
+    computed: {
         isLogined() {
-            const value = document.cookie.match('(^|;) ?' + "accessToken" + '=([^;]*)(;|$)');
-            return value ? true : false;
+            return this.$store.state.isLogined; // 전역 변수 가져오기
         },
+    },
+    data() {
     },
 }
 </script>
