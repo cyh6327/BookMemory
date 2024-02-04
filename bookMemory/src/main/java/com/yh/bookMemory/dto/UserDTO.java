@@ -1,7 +1,6 @@
 package com.yh.bookMemory.dto;
 
 import com.yh.bookMemory.entity.Users;
-import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Data;
 
@@ -21,7 +20,7 @@ public class UserDTO {
     private Double sortKey = 0.0; // 랜덤 문장 선정할 때 order by 할 난수
 
     @Builder.Default
-    private Long sendCnt = 0L;    // 랜덤 문장 받은 개수
+    private Integer sendCnt = 0;    // 랜덤 문장 받은 개수
 
     public Users toEntity() {
         return Users.builder()

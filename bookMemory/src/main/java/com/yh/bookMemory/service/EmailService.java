@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface EmailService {
 
-    List<BookSentencesDTO> pickRandomSentences(String sentenceSortKey, long sendCnt, int limit) throws Exception;
+    List<BookSentencesDTO> pickRandomSentences(String sentenceSortKey, int sendCnt, int limit) throws Exception;
 
     boolean sendMail(String email, String sentenceSortKey, int limit);
 }

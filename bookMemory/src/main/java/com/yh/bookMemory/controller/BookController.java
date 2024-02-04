@@ -44,15 +44,29 @@ public class BookController {
     public ResponseEntity<List<BookInfoDTO>> dashboard(HttpServletRequest request){
         log.info("dashboard.......");
 
+        log.info("search cookie.............");
+        Cookie[] cookies = request.getCookies();
+        String accessToken = "";
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    accessToken = cookie.getValue();
+
+                }
+            }
+        }
+        log.info("find accessToken......."+accessToken);
+
         List<BookInfoDTO> resultListDto = new ArrayList<>();
 
-        Object accessToken = RequestContextHolder.getRequestAttributes().getAttribute("accessToken", RequestAttributes.SCOPE_REQUEST);
-        log.info("first accessToken......."+accessToken);
+        //Object accessToken = RequestContextHolder.getRequestAttributes().getAttribute("accessToken", RequestAttributes.SCOPE_REQUEST);
+        //log.info("first accessToken......."+accessToken);
 
         // savedToken 이 없다는 것은 최초 로그인 전 상태이다.
         if(accessToken == null) {
             log.info("최초 로그인 하기 전...................................");
-            return ResponseEntity.ok(resultListDto);
+            return ResponseEntity.noContent().build();
+            //return ResponseEntity.ok(resultListDto);
         }
 
         JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(JwtProperties.SECRET);

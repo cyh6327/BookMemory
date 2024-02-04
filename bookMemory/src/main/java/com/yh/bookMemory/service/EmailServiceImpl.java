@@ -6,7 +6,6 @@ import com.yh.bookMemory.entity.BookSentences;
 import com.yh.bookMemory.entity.Users;
 import com.yh.bookMemory.jwt.JwtProperties;
 import com.yh.bookMemory.jwt.JwtTokenVerifier;
-import com.yh.bookMemory.repository.BookSentencesCustomRepository;
 import com.yh.bookMemory.repository.BookSentencesRepository;
 import com.yh.bookMemory.repository.SentenceLogRepository;
 import com.yh.bookMemory.repository.UserRepository;
@@ -17,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -46,12 +44,7 @@ public class EmailServiceImpl implements EmailService, CommonService {
     SentenceLogRepository sentenceLogRepository;
 
     @Autowired
-    BookSentencesCustomRepository bookSentencesCustomRepository;
-
-    @Autowired
     UserRepository userRepository;
-
-    private final JavaMailSender javaMailSender;
 
     @Value("${spring.datasource.emailId}")
     private String username;
@@ -60,7 +53,7 @@ public class EmailServiceImpl implements EmailService, CommonService {
     private String password;
 
     @Override
-    public List<BookSentencesDTO> pickRandomSentences(String sentenceSortKey, long sendCnt, int limit) throws Exception {
+    public List<BookSentencesDTO> pickRandomSentences(String sentenceSortKey, int sendCnt, int limit) throws Exception {
         log.info("limit...................."+limit);
         log.info("랜덤 문장 선정.....................................");
 
@@ -78,7 +71,9 @@ public class EmailServiceImpl implements EmailService, CommonService {
             sentencesList.add(sentenceEntityToDto(sentence));
         }
 
-        log.info("sentencesList.");
+        log.info("sentencesList............."+sentencesList);
+
+        return sentencesList;
 
         //List<BookSentences> sentenceList = bookSentencesRepository.pickRandomSentences(sortKey, sendCnt, limit);
         //List<BookSentences> sentenceList = bookSentencesCustomRepository.pickRandomSentences(sortKey, 0, limit);
@@ -111,7 +106,6 @@ public class EmailServiceImpl implements EmailService, CommonService {
 //        System.out.println("Decrypted Data: " + decryptedData);
 
         //return sentenceListDto;
-       return null;
     }
 
     @Override
@@ -119,6 +113,8 @@ public class EmailServiceImpl implements EmailService, CommonService {
 
         log.info("sendMail Service start ...................");
         log.info("sentenceSortKey ..................." + sentenceSortKey);
+
+        String[] emailList = email.split(",");
 
         Object accessToken = Objects.requireNonNull(RequestContextHolder.getRequestAttributes()).getAttribute("accessToken", RequestAttributes.SCOPE_REQUEST);
         if(accessToken == null) {
@@ -154,15 +150,7 @@ public class EmailServiceImpl implements EmailService, CommonService {
         });
 
         try {
-            // 이메일 메시지 생성
-            Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(username)); // 발신자 주소
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email)); // 수신자 주소
-            message.setSubject("오늘의 문장이 도착했습니다 :D"); // 이메일 제목
-
-            // TODO: sortKey 파라미터로 넘어온 것으로 세팅 해서 넘기기
-            String sortKey = "";
-            List<BookSentencesDTO> sentenceList = pickRandomSentences(sortKey, sendCnt, limit);
+            List<BookSentencesDTO> sentenceList = pickRandomSentences(sentenceSortKey, sendCnt, limit);
 
             StringBuilder layoutBuilder = new StringBuilder();
 
@@ -170,16 +158,16 @@ public class EmailServiceImpl implements EmailService, CommonService {
 
             StringBuilder bodybuilder = new StringBuilder();
 
-//            for(BookSentencesDTO dto : sentenceList) {
-//                String bookSentence = dto.getSentenceText();
-//                Long bookId = dto.getBookInfo().getBookId();
-//                String bookTitle = bookService.getBookInfo(bookId).getTitle();
-//                String author = bookService.getBookInfo(bookId).getAuthor();
-//
-//                String sentenceSection = "<div style=\"border:3px solid rgba(208,173,240,0.3);border-radius: 20px;margin: 50px 0;\"><div style=\"word-break:break-all;text-align:left;margin:0px;line-height:1.7;word-break:break-word;font-size:14px;font-family:noto sans kr,noto sans cjk kr,noto sans cjk,Malgun Gothic,apple sd gothic neo,nanum gothic,malgun gothic,dotum,arial,helvetica,Meiryo,MS Gothic,sans-serif!important;color:#000000;padding:30px\"><span style=\"padding:0;list-style-type:none\">"+bookSentence+"</span></div><div style=\"padding:0 30px 30px;\"><span style=\"color:#888888\">- ["+bookTitle+"] "+author+"</span></div></div>";
-//
-//                bodybuilder.append(sentenceSection);
-//            }
+            for(BookSentencesDTO dto : sentenceList) {
+                String bookSentence = dto.getSentenceText();
+                Long bookId = dto.getBookInfo().getBookId();
+                String bookTitle = bookService.getBookInfo(bookId).getTitle();
+                String author = bookService.getBookInfo(bookId).getAuthor();
+
+                String sentenceSection = "<div style=\"border:3px solid rgba(208,173,240,0.3);border-radius: 20px;margin: 50px 0;\"><div style=\"word-break:break-all;text-align:left;margin:0px;line-height:1.7;word-break:break-word;font-size:14px;font-family:noto sans kr,noto sans cjk kr,noto sans cjk,Malgun Gothic,apple sd gothic neo,nanum gothic,malgun gothic,dotum,arial,helvetica,Meiryo,MS Gothic,sans-serif!important;color:#000000;padding:30px\"><span style=\"padding:0;list-style-type:none\">"+bookSentence+"</span></div><div style=\"padding:0 30px 30px;\"><span style=\"color:#888888\">["+bookTitle+"] "+author+"</span></div></div>";
+
+                bodybuilder.append(sentenceSection);
+            }
 
             String body = bodybuilder.toString();
 
@@ -187,12 +175,20 @@ public class EmailServiceImpl implements EmailService, CommonService {
 
             String result = layoutBuilder.append(header).append(body).append(footer).toString();
 
-            message.setContent(result, "text/html;charset=euc-kr");
+            for(String address : emailList) {
+                // 이메일 메시지 생성
+                Message message = new MimeMessage(session);
+                message.setFrom(new InternetAddress(username)); // 발신자 주소
+                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(address)); // 수신자 주소
+                message.setSubject("오늘의 문장이 도착했습니다 :D"); // 이메일 제목
 
-            // 이메일 보내기
-            Transport.send(message);
+                message.setContent(result, "text/html;charset=euc-kr");
 
-            log.info("이메일이 성공적으로 전송되었습니다.");
+                // 이메일 보내기
+                Transport.send(message);
+
+                log.info("이메일이 성공적으로 전송되었습니다.");
+            }
 
             // user sendCnt 컬럼 업데이트
             receiverDTO.setSendCnt(sendCnt + limit);

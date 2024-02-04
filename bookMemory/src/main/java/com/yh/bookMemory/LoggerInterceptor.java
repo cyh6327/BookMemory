@@ -10,6 +10,7 @@ import com.yh.bookMemory.repository.UserRefreshTokenMapping;
 import com.yh.bookMemory.repository.UserRefreshTokenRepository;
 import com.yh.bookMemory.repository.UserRepository;
 import com.yh.bookMemory.service.UserService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,22 +47,33 @@ public class LoggerInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        String receivedToken = null;
-        String type = "Bearer ";
-        String verifiedJwt = null;
-        Enumeration<String> headers = request.getHeaders("Authorization");
-
-        while (headers.hasMoreElements()) {
-            String value = headers.nextElement();
-            System.out.println("header.............."+value);
-            if (value.toLowerCase().startsWith(type.toLowerCase())) {
-                System.out.println("bearer header.............."+value);
-                receivedToken = value.substring(type.length()).trim();
+        Cookie[] cookies = request.getCookies();
+        String accessToken = "";
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    accessToken = cookie.getValue();
+                }
             }
         }
-        System.out.println("accessToken from cookie.........................."+receivedToken);
+        System.out.println("find accessToken......."+accessToken);
 
-        if(receivedToken == null) {
+//        String receivedToken = null;
+//        String type = "Bearer ";
+        String verifiedJwt = null;
+        //Enumeration<String> headers = request.getHeaders("Authorization");
+
+//        while (headers.hasMoreElements()) {
+//            String value = headers.nextElement();
+//            System.out.println("header.............."+value);
+//            if (value.toLowerCase().startsWith(type.toLowerCase())) {
+//                System.out.println("bearer header.............."+value);
+//                receivedToken = value.substring(type.length()).trim();
+//            }
+//        }
+//        System.out.println("accessToken from cookie.........................."+receivedToken);
+
+        if(accessToken == null) {
             //response.sendRedirect(request.getContextPath()+"/book");
             // receivedToken이 없어도 메인화면은 호출이 가능하다.
             return request.getRequestURI().equals("/book");
@@ -74,13 +86,13 @@ public class LoggerInterceptor implements HandlerInterceptor {
          */
         JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(JwtProperties.SECRET);
         try {
-            jwtTokenVerifier.verify(receivedToken);
+            jwtTokenVerifier.verify(accessToken);
         } catch (JWTVerificationException e){
             // 유효기간 만료
             System.out.println("accesstoken has expired..........................");
 
             // access token에서 user_key 정보를 가져온다.
-            Object userKey = jwtTokenVerifier.getJwtInfo(Objects.toString(receivedToken), "user_key");
+            Object userKey = jwtTokenVerifier.getJwtInfo(Objects.toString(accessToken), "user_key");
             if(userKey == null) {
                 return false;
             }
@@ -120,7 +132,7 @@ public class LoggerInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        verifiedJwt = Objects.requireNonNull(jwtTokenVerifier.getJwtTokenInfo(receivedToken));
+        verifiedJwt = Objects.requireNonNull(jwtTokenVerifier.getJwtTokenInfo(accessToken));
         System.out.println("verifiedJwt.........................."+verifiedJwt);
 
         RequestContextHolder.currentRequestAttributes().setAttribute("accessToken", verifiedJwt, RequestAttributes.SCOPE_REQUEST);

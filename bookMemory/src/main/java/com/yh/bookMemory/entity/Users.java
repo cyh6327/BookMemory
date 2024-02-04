@@ -31,7 +31,7 @@ public class Users {
 
     @Column
     @Builder.Default
-    private Long sendCnt = 0L;    // 랜덤 문장 받은 개수
+    private Integer sendCnt = 0;    // 랜덤 문장 받은 개수
 
     public UserDTO toDTO() {
         return UserDTO.builder()

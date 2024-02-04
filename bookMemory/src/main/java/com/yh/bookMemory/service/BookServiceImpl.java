@@ -80,11 +80,6 @@ public class BookServiceImpl implements BookService, CommonService {
 
     @Override
     public List<BookInfoDTO> getAllBookList(long userKey) {
-//        Long userKey = 1L;
-//        if(userKey == null) {
-//            return null;
-//        }
-
         log.info("userKey...................."+userKey);
 
         log.info("getAllBookList....................");
@@ -99,12 +94,6 @@ public class BookServiceImpl implements BookService, CommonService {
         }
 
         return resultListDto;
-//        Pageable pageable = requestDTO.getPageable(Sort.by("bookId").descending());
-//        Page<BookInfo> result = bookInfoRepository.getReferenceByUsersUserKey(userKey);
-//        //Page<BookInfo> result = bookInfoRepository.findAll(pageable);
-//        Function<BookInfo, BookInfoDTO> fn = (entity -> entityToDto(entity));
-//
-//        return new PageResultDTO<>(result,fn);
     }
 
 
@@ -113,7 +102,6 @@ public class BookServiceImpl implements BookService, CommonService {
     private static String removeExtraSpacesAfterDot(String input) {
         // 정규식 패턴: ". " 뒤의 여러 공백을 하나로 대체
         String regex = "\\.\\s+";
-        //String regex = "\\s{2,}";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(input);
 
@@ -121,7 +109,6 @@ public class BookServiceImpl implements BookService, CommonService {
         StringBuffer result = new StringBuffer();
         while (matcher.find()) {
             matcher.appendReplacement(result, ". ");
-            //matcher.appendReplacement(result, " ");
         }
         matcher.appendTail(result);
 
@@ -147,9 +134,10 @@ public class BookServiceImpl implements BookService, CommonService {
 
         for(String str : splitByHr) {
             log.info("splitByHr............."+str);
+            str = str.replaceAll("<br><br>", "<br>");
             str = str.replaceAll("<br>\\s*", "<br>");
             str = str.replaceAll("\\s*<br>", "<br>");
-            str = str.replaceAll("<br><br>", "<br>");
+
             String processedText = removeExtraSpacesAfterDot(str.trim());
             log.info("removeBlank............."+processedText);
 
@@ -177,52 +165,6 @@ public class BookServiceImpl implements BookService, CommonService {
         log.info("sentenceListDto.................."+sentenceListDto.toString());
 
         return sentenceListDto;
-
-//        ClassPathResource resource = new ClassPathResource(title + ".html");
-//        File input = resource.getFile();
-//        Document doc = null;
-//
-//        // url에 접속한다.
-//        try {
-//            doc = Jsoup.parse(input, "UTF-8");
-//        } catch(IOException e) {
-//            System.out.println(e.getMessage());
-//        }
-//
-//        Elements div = doc.select("div");
-//        String withoutDiv = div.html().replaceAll("<div>","").replaceAll("</div>","").replaceAll("&nbsp;","");
-//
-//        String[] arr = withoutDiv.split("<hr>");
-//
-//        List<BookSentences> sentences = new ArrayList<>();
-//
-//        for(int i=1; i<arr.length-1; i++) {
-//            log.info("before replace bt arr[i]..............................."+arr[i]);
-//            arr[i] = arr[i].replaceAll("</br>","<br>");
-//            arr[i] = arr[i].replaceAll("<br>\\s*", "<br>");
-//            arr[i] = arr[i].replaceAll("\\s*<br>", "<br>");
-//
-//            String regex = ".*\\S+.*"; // 공백을 제외한 어떠한 글자라도 존재하는 패턴
-//            Pattern pattern = Pattern.compile(regex);
-//            Matcher matcher = pattern.matcher(arr[i]);
-//
-//            BookInfo bookInfo = bookInfoRepository.getOne(bookId);
-//
-//            log.info("after replace bt arr[i]..............................."+arr[i]+matcher.matches());
-//
-//            if(matcher.matches()) {
-//                BookSentences bookSentences = BookSentences.builder()
-//                        .sentenceText(arr[i])
-//                        .favoriteFlag('N')
-//                        .bookInfo(bookInfo)
-//                        .build();
-//
-//                sentences.add(bookSentences);
-//            } else {
-//                System.out.println("empty....................");
-//            }
-//        }
-//
     }
 
     @Override

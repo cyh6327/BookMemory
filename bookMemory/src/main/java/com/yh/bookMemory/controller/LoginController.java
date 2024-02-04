@@ -61,6 +61,8 @@ public class LoginController implements CommonService {
         ResponseCookie cookie = ResponseCookie.from("accessToken", accessToken)
                 .path("/")
                 .maxAge(3600)
+                .sameSite("none")
+                .secure(true)
                 .build();
 
         HttpHeaders header = new HttpHeaders();
