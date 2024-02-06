@@ -13,6 +13,7 @@ import com.yh.bookMemory.repository.BookSentencesRepository;
 import lombok.extern.log4j.Log4j2;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -27,9 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -193,6 +192,44 @@ public class BookServiceImpl implements BookService, CommonService {
         }
 
         return sentenceListDto;
+    }
+
+    @Override
+    public List<Map<String, String>> searchBookInfoFromYes24(String keyword) throws IOException {
+        Document doc = Jsoup.connect("https://www.yes24.com/Product/Search?domain=ALL&query="+keyword).get();
+        Elements searchResult = doc.select("#yesSchList li[data-goods-no]");
+
+        log.info("searchResult............................"+searchResult);
+
+        Map<String, String> bookInfo = new HashMap<>();
+        List<Map<String, String>> bookInfoList = new ArrayList<>();
+
+        int count = 0;
+
+        // 상위 10개의 결과를 가져온다.
+        for (Element element : searchResult) {
+            count += 1;
+            bookInfo.clear();
+
+            String title = element.select(".itemUnit .item_info .info_row.info_name .gd_name").text();
+
+            String subTitle = element.select(".itemUnit .item_info .info_row.info_name .gd_nameE").text();
+
+            String author = element.select(".itemUnit .item_info .info_row.info_pubGrp .authPub.info_auth a").text();
+
+            String publisher = element.select(".itemUnit .item_info .info_row.info_pubGrp .authPub.info_pub a").text();
+
+            bookInfo.put("title",title);
+            bookInfo.put("subTitle",subTitle);
+            bookInfo.put("author",author);
+            bookInfo.put("publisher",publisher);
+
+            bookInfoList.add(bookInfo);
+
+            if(count == 10) break;
+        }
+
+        return bookInfoList;
     }
 
 //    @Override

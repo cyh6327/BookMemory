@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public interface BookService {
     BookInfoDTO createBook(BookInfoDTO dto);
@@ -21,4 +22,6 @@ public interface BookService {
     BookInfoDTO getBookInfo(long bookId);
 
     List<BookSentencesDTO> getSentences(long bookId) throws IOException;
+
+    List<Map<String, String>> searchBookInfoFromYes24(String keyword) throws IOException;
 }

@@ -1,13 +1,34 @@
 <template>
   <v-main>
     <h1>책 정보 등록 {{ testData }}</h1>
-    <v-form id="bookInfoForm" @submit.prevent="onSubmit">
-      <v-container>
-        <v-checkbox 
+    <v-container>
+      <v-form id="bookInfoForm" @submit.prevent="onSubmit">
+        <v-row>
+          <v-col>
+            <v-text-field
+                v-model="keyword"
+                :rules="nameRules"
+                :counter="20"
+                label="책 검색"
+                clear-icon="mdi mdi-close"
+                clearable
+                required
+              ></v-text-field>
+            </v-col>
+            <v-col cols="1">
+              <v-btn-alt
+                    @click="searchBookInfo"
+                    rel="noopener noreferrer"
+                    text="검색"
+              />
+            </v-col>
+        </v-row>
+        <!-- <v-checkbox 
             v-model="book.favoriteFlag"
             label="즐겨찾기"
             color="orange"
-        ></v-checkbox>
+        ></v-checkbox> -->
+
         <v-text-field
             v-model="book.title"
             :rules="nameRules"
@@ -73,8 +94,8 @@
         ></v-textarea>
   
         <v-btn type="submit" block class="mt-2 float-end" color="#2c3e50">등록</v-btn>
+      </v-form>
       </v-container>
-    </v-form>
   </v-main>
 </template>
   
@@ -86,6 +107,7 @@
       return {
         testData : "",
         book: {}, 
+        keyword : "",
       };
     },
     // mounted() {
@@ -109,6 +131,12 @@
                 });
             });
         },
+        searchBookInfo() {
+          this.axios.post("/book/search/yes24/"+this.keyword)
+          .then((res) => {
+              console.log(res);
+          })
+        }
     },
   };
 </script>

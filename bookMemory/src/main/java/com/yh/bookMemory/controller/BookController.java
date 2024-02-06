@@ -3,32 +3,20 @@ package com.yh.bookMemory.controller;
 import com.yh.bookMemory.dto.BookInfoDTO;
 import com.yh.bookMemory.dto.BookSentencesDTO;
 import com.yh.bookMemory.dto.PageRequestDTO;
-import com.yh.bookMemory.dto.PageResultDTO;
-import com.yh.bookMemory.entity.BookInfo;
-import com.yh.bookMemory.entity.BookSentences;
 import com.yh.bookMemory.jwt.JwtProperties;
 import com.yh.bookMemory.jwt.JwtTokenVerifier;
 import com.yh.bookMemory.repository.BookSentencesRepository;
 import com.yh.bookMemory.service.BookService;
-import com.yh.bookMemory.service.CommonService;
-import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RequestMapping("/book")
 @RestController
@@ -142,5 +130,16 @@ public class BookController {
         response.sendRedirect(redirectUri);
 
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/search/yes24/{keyword}")
+    public ResponseEntity<List<Map<String, String>>> searchBookInfoFromYes24 (@PathVariable(value = "keyword") String keyword) throws IOException {
+        log.info("searchBookInfoFromYes24........................keyword :"+keyword);
+
+        List<Map<String, String>> bookInfoList =  bookService.searchBookInfoFromYes24(keyword);
+
+        log.info("bookInfoList............................"+bookInfoList.toString());
+
+        return ResponseEntity.ok(bookInfoList);
     }
 }
