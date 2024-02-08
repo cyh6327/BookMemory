@@ -7,7 +7,7 @@
             v-model="keyword"
             :rules="nameRules"
             :counter="20"
-            label="검색어를 입력해주세요."
+            label="검색"
             clear-icon="mdi mdi-close"
             clearable
             required
@@ -17,15 +17,28 @@
         </v-col>
     </v-row>
     <v-row v-if="this.searchBook.length != 0">
-        <v-col cols="4" v-for="book in searchBook" :key="book">
-        <v-card
-            color="#952175"
-            theme="dark"
-        >
-            <div class="card-container d-flex">
+        <v-col cols="12" v-for="book in searchBook" :key="book">
+          <v-card
+              color="#952175"
+              theme="dark"
+          >
+          <div class="card-container d-flex">
+            <v-avatar
+                class="ma-3"
+                size="125"
+                rounded="0"
+            >
+            <v-img :src="book.img"></v-img>
+            </v-avatar>
             <div style="width:60%">
                 <v-card-title style="padding: 20px 20px 5px 20px;font-size: 18px;">
+                  <RouterLink
+                    :to="{ path: '/book/search/detail'+book.bookId }"
+                    active-class="active"
+                    class="nav-link"
+                  >
                     {{ book.title }}
+                  </RouterLink>
                 </v-card-title>
 
                 <v-card-subtitle>{{ book.author }}</v-card-subtitle>
@@ -42,15 +55,7 @@
                 ></v-btn>
                 </v-card-actions>
             </div>
-
-            <v-avatar
-                class="ma-3"
-                size="125"
-                rounded="0"
-            >
-            <v-img :src="book.img"></v-img>
-            </v-avatar>
-            </div>
+          </div>
         </v-card>
         </v-col>
     </v-row>
@@ -217,7 +222,7 @@
     height: 200px;
 }
 .v-avatar {
-    width: 40% !important; 
+    width: 30% !important; 
     height: 100% !important; 
     padding: 15px; 
     margin: 0 !important;

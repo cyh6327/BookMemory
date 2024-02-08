@@ -12,6 +12,7 @@ import com.yh.bookMemory.repository.BookInfoRepository;
 import com.yh.bookMemory.repository.BookSentencesRepository;
 import lombok.extern.log4j.Log4j2;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.DataNode;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -23,6 +24,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -196,20 +198,25 @@ public class BookServiceImpl implements BookService, CommonService {
 
     @Override
     public List<Map<String, String>> searchBookInfoFromYes24(String keyword) throws IOException {
-        Document doc = Jsoup.connect("https://www.yes24.com/Product/Search?domain=ALL&query="+keyword).get();
+        Document doc = Jsoup.connect("https://www.yes24.com/Product/Search?domain=ALL&query="+keyword).timeout(5000).get();
         Elements searchResult = doc.select("#yesSchList li[data-goods-no]");
 
         log.info("searchResult............................"+searchResult);
 
-        Map<String, String> bookInfo = new HashMap<>();
         List<Map<String, String>> bookInfoList = new ArrayList<>();
 
         int count = 0;
 
         // 상위 10개의 결과를 가져온다.
         for (Element element : searchResult) {
-            count += 1;
-            bookInfo.clear();
+            Map<String, String> bookInfo = new HashMap<>();
+
+            String bookId = element.attr("data-goods-no");
+
+            Map<String, String> bookDesc = getDetailBookInfoFromYes24(bookId);
+
+            String mainDesc = bookDesc.get("mainDesc");
+            String subDesc = bookDesc.get("subDesc");
 
             String title = element.select(".itemUnit .item_info .info_row.info_name .gd_name").text();
 
@@ -219,12 +226,24 @@ public class BookServiceImpl implements BookService, CommonService {
 
             String publisher = element.select(".itemUnit .item_info .info_row.info_pubGrp .authPub.info_pub a").text();
 
+            String img = element.select(".itemUnit .item_img .img_canvas .img_item .img_grp .lnk_img .img_bdr img").attr("data-original");
+
+            bookInfo.put("bookId",bookId);
             bookInfo.put("title",title);
             bookInfo.put("subTitle",subTitle);
+            bookInfo.put("mainDesc",mainDesc);
+            bookInfo.put("subDesc",subDesc);
             bookInfo.put("author",author);
             bookInfo.put("publisher",publisher);
+            bookInfo.put("img",img);
+
+            log.info("current bookInfo........................"+bookInfo.toString());
 
             bookInfoList.add(bookInfo);
+
+            log.info("current bookInfoList........................"+bookInfoList.toString());
+
+            count += 1;
 
             if(count == 10) break;
         }
@@ -232,6 +251,28 @@ public class BookServiceImpl implements BookService, CommonService {
         return bookInfoList;
     }
 
+    public Map<String, String> getDetailBookInfoFromYes24(String bookId) throws IOException {
+        Document doc = Jsoup.connect("https://www.yes24.com/Product/Goods/"+bookId).timeout(5000).get();
+        Elements detailDesc = doc.select("#infoset_introduce .infoSetCont_wrap .wrapTb .infoWrap_txt .infoWrap_txtInner .txtContentText");
+        String detailDescHtml = detailDesc.html();
+
+        log.info("detailDescHtml....................."+detailDescHtml);
+        log.info("parsed detailDescHtml.....................");
+
+
+        String[] desc = detailDescHtml.split("&lt;/\b&gt;");
+        log.info("desc arr....................."+ Arrays.toString(desc)+"............end");
+        String mainDesc = detailDescHtml.split("&lt;/\b&gt;")[0];
+        String subDesc = detailDescHtml.split("&lt;/\b&gt;")[1];
+
+        Map<String, String> bookDesc = new HashMap<>();
+        bookDesc.put("mainDesc", mainDesc);
+        bookDesc.put("subDesc", subDesc);
+
+        log.info("bookDesc......................"+bookDesc.toString());
+
+        return bookDesc;
+    }
 //    @Override
 //    public BookSentencesDTO read(Long bookId) {
 //       //Optional<BookSentences> result = bookSentencesRepository.findById(bookId);
