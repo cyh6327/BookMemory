@@ -62,7 +62,6 @@ public class BookServiceImpl implements BookService, CommonService {
         JwtTokenVerifier jwtTokenVerifier = new JwtTokenVerifier(JwtProperties.SECRET);
         DecodedJWT jwt = jwtTokenVerifier.verify(Objects.toString(accessToken));
         Long userKey = jwt.getClaim("user_key").asLong();
-        log.info("userKey....................................."+userKey);
 
         //TODO: bookInfo 테이블에 user_key를 넣어야해서 일단은 Users entity를 찾아와서 넣어줬는데 조금 더 간단한 방법이 있는지 알아보고 수정
         //생각해본건 아예 RequestContextHolder에 accesstoken 대신 users entity를 넣는 방법인데 일반적으로 이렇게 하는지는 모르겠네
@@ -81,8 +80,6 @@ public class BookServiceImpl implements BookService, CommonService {
 
     @Override
     public List<BookInfoDTO> getAllBookList(long userKey) {
-        log.info("userKey...................."+userKey);
-
         log.info("getAllBookList....................");
 
         List<BookInfo> resultList = bookInfoRepository.getReferenceByUsersUserKey(userKey);
@@ -119,28 +116,23 @@ public class BookServiceImpl implements BookService, CommonService {
     /*
     규칙
     1. 텍스트 파일만 가능하며 텍스트 파일명과 문장을 추가할 책 제목과 동일해야 한다.
-    2. 텍스트 파일은 다른 html 태그 전부 제거하고 <hr> 태그만 남긴다. (<hr> 태그 기준으로 문장 분할)
+    2. 텍스트 파일은 다른 html 태그 전부 제거하고 <br>(줄바꿈), <hr> 태그만 남긴다. (<hr> 태그 기준으로 문장 분할)
      */
     @Override
     public List<BookSentencesDTO> insertSentenceFromFile(long bookId, String title) throws IOException {
-        log.info("bookId............."+bookId);
-        log.info("title............."+title);
         String filePath = Paths.get("").toAbsolutePath()+"/src/main/resources/"+title+".txt";
         Charset charset = StandardCharsets.UTF_8;
         String text = Files.readAllLines(Paths.get(filePath),charset).get(0);
-        log.info("text............."+text);
         String[] splitByHr = text.split("<hr>");
 
         List<BookSentences> sentences = new ArrayList<>();
 
         for(String str : splitByHr) {
-            log.info("splitByHr............."+str);
             str = str.replaceAll("<br><br>", "<br>");
             str = str.replaceAll("<br>\\s*", "<br>");
             str = str.replaceAll("\\s*<br>", "<br>");
 
             String processedText = removeExtraSpacesAfterDot(str.trim());
-            log.info("removeBlank............."+processedText);
 
             BookInfo bookInfo = bookInfoRepository.getOne(bookId);
 
@@ -198,10 +190,8 @@ public class BookServiceImpl implements BookService, CommonService {
 
     @Override
     public List<Map<String, String>> searchBookInfoFromYes24(String keyword) throws IOException {
-        Document doc = Jsoup.connect("https://www.yes24.com/Product/Search?domain=ALL&query="+keyword).timeout(5000).get();
+        Document doc = Jsoup.connect("https://www.yes24.com/Product/Search?domain=ALL&query="+keyword+"&size=10").timeout(5000).get();
         Elements searchResult = doc.select("#yesSchList li[data-goods-no]");
-
-        log.info("searchResult............................"+searchResult);
 
         List<Map<String, String>> bookInfoList = new ArrayList<>();
 
@@ -213,10 +203,7 @@ public class BookServiceImpl implements BookService, CommonService {
 
             String bookId = element.attr("data-goods-no");
 
-            Map<String, String> bookDesc = getDetailBookInfoFromYes24(bookId);
-
-            String mainDesc = bookDesc.get("mainDesc");
-            String subDesc = bookDesc.get("subDesc");
+            String bookDesc = getDetailBookInfoFromYes24(bookId);
 
             String title = element.select(".itemUnit .item_info .info_row.info_name .gd_name").text();
 
@@ -231,17 +218,12 @@ public class BookServiceImpl implements BookService, CommonService {
             bookInfo.put("bookId",bookId);
             bookInfo.put("title",title);
             bookInfo.put("subTitle",subTitle);
-            bookInfo.put("mainDesc",mainDesc);
-            bookInfo.put("subDesc",subDesc);
+            bookInfo.put("desc",bookDesc);
             bookInfo.put("author",author);
             bookInfo.put("publisher",publisher);
             bookInfo.put("img",img);
 
-            log.info("current bookInfo........................"+bookInfo.toString());
-
             bookInfoList.add(bookInfo);
-
-            log.info("current bookInfoList........................"+bookInfoList.toString());
 
             count += 1;
 
@@ -251,27 +233,18 @@ public class BookServiceImpl implements BookService, CommonService {
         return bookInfoList;
     }
 
-    public Map<String, String> getDetailBookInfoFromYes24(String bookId) throws IOException {
-        Document doc = Jsoup.connect("https://www.yes24.com/Product/Goods/"+bookId).timeout(5000).get();
-        Elements detailDesc = doc.select("#infoset_introduce .infoSetCont_wrap .wrapTb .infoWrap_txt .infoWrap_txtInner .txtContentText");
-        String detailDescHtml = detailDesc.html();
+    public String getDetailBookInfoFromYes24(String bookId) throws IOException {
+        Document doc = Jsoup.connect("https://www.yes24.com/Product/Goods/"+bookId).timeout(10000).get();
+        String detailDesc = doc.select("#infoset_introduce .txtContentText").html();
 
-        log.info("detailDescHtml....................."+detailDescHtml);
-        log.info("parsed detailDescHtml.....................");
+        String parsedDesc = detailDesc
+                .replaceAll("&lt;", "<")
+                .replaceAll("&gt;",">");
 
+        // 필요없는 내용들은 잘라낸다. (쓸데없는 태그가 딸려오는 것을 제외시키기 위함)
+        String resultDesc = parsedDesc.split("<[^b|B|\\/][a-zA-Z]*")[0];
 
-        String[] desc = detailDescHtml.split("&lt;/\b&gt;");
-        log.info("desc arr....................."+ Arrays.toString(desc)+"............end");
-        String mainDesc = detailDescHtml.split("&lt;/\b&gt;")[0];
-        String subDesc = detailDescHtml.split("&lt;/\b&gt;")[1];
-
-        Map<String, String> bookDesc = new HashMap<>();
-        bookDesc.put("mainDesc", mainDesc);
-        bookDesc.put("subDesc", subDesc);
-
-        log.info("bookDesc......................"+bookDesc.toString());
-
-        return bookDesc;
+        return resultDesc;
     }
 //    @Override
 //    public BookSentencesDTO read(Long bookId) {

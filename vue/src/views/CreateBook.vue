@@ -1,5 +1,5 @@
 <template>
-  <v-container class="w-50">
+  <v-container>
     <h1 class="mb-5">책 검색 {{ testData }}</h1>
     <v-row justify="center">
       <v-col>
@@ -33,7 +33,7 @@
             <div style="width:60%">
                 <v-card-title style="padding: 20px 20px 5px 20px;font-size: 18px;">
                   <RouterLink
-                    :to="{ path: '/book/search/detail'+book.bookId }"
+                    :to="{ path: '/book/search/detail/'+book.bookId }"
                     active-class="active"
                     class="nav-link"
                   >
@@ -41,13 +41,14 @@
                   </RouterLink>
                 </v-card-title>
 
-                <v-card-subtitle>{{ book.author }}</v-card-subtitle>
+                <v-card-subtitle style="opacity: 1;">{{ book.author }}</v-card-subtitle>
                 
-                <v-card-actions class="d-flex justify-center">
-                    <span v-for="i in book.rating" :key="i" class="material-symbols-outlined">kid_star</span>
-                </v-card-actions>
+                <v-card-text style="height: 40%; padding: 20px; overflow:hidden; text-overflow:ellipsis; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; opacity: var(--v-medium-emphasis-opacity);">
+                    <!-- <span v-for="i in book.rating" :key="i" class="material-symbols-outlined">kid_star</span> -->
+                    {{ book.desc }}
+                </v-card-text>
     
-                <!-- <span class="tag"><a href="">#{{ book.genre }}</a></span> -->
+                <!-- <span><a href="">#{{ book.desc }}</a></span> -->
 
                 <v-card-actions>
                 <v-btn
@@ -195,6 +196,16 @@
           this.axios.post("/book/search/yes24/"+this.keyword)
           .then((res) => {
               console.log(res);
+
+              let result = res.data;
+              for(const obj of result) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(obj.desc, "text/html");
+                const text = doc.body.textContent;
+                console.log("parsed", text);
+                obj.desc = text;
+              }
+              
               this.searchBook = res.data;
           })
         }
@@ -204,6 +215,7 @@
 
 <style>
 .v-container.d-flex {
+  max-width: 700px;
   padding: 0;
   margin-bottom: 10px;
 }
