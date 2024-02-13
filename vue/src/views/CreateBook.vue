@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class="w-50">
     <h1 class="mb-5">책 검색 {{ testData }}</h1>
     <v-row justify="center">
       <v-col>
@@ -16,6 +16,7 @@
           ></v-text-field>
         </v-col>
     </v-row>
+    <v-form id="bookInfoForm" @submit.prevent="onSubmit">
     <v-row v-if="this.searchBook.length != 0">
         <v-col cols="12" v-for="book in searchBook" :key="book">
           <v-card
@@ -31,7 +32,7 @@
             <v-img :src="book.img"></v-img>
             </v-avatar>
             <div style="width:60%">
-                <v-card-title style="padding: 20px 20px 5px 20px;font-size: 18px;">
+                <v-card-title style="padding: 20px 20px 5px 20px;font-size: 18px;" v-model="book.title">
                   <RouterLink
                     :to="{ path: '/book/search/detail/'+book.bookId }"
                     active-class="active"
@@ -39,9 +40,16 @@
                   >
                     {{ book.title }}
                   </RouterLink>
+                  <v-btn 
+                    class="material-symbols-outlined float-end" 
+                    style="position: absolute; right:30px; opacity: 1 !important; min-width: 0;" 
+                    variant="plain"
+                    @click="dialog = true"
+                  >add_circle  
+                  </v-btn>
                 </v-card-title>
 
-                <v-card-subtitle style="opacity: 1;">{{ book.author }}</v-card-subtitle>
+                <v-card-subtitle style="opacity: 1;" v-model="book.author">{{ book.author }}</v-card-subtitle>
                 
                 <v-card-text style="height: 40%; padding: 20px; overflow:hidden; text-overflow:ellipsis; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; opacity: var(--v-medium-emphasis-opacity);">
                     <!-- <span v-for="i in book.rating" :key="i" class="material-symbols-outlined">kid_star</span> -->
@@ -60,7 +68,22 @@
         </v-card>
         </v-col>
     </v-row>
+  </v-form>
   </v-container>
+
+  <v-dialog v-model="dialog" width="500">
+      <v-card theme="dark">
+        <v-card-text>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" block @click="dialog = false">Close Dialog</v-btn>
+        </v-card-actions>
+      </v-card>
+  </v-dialog>
+
     <!-- <v-sheet>
       <v-row>
           <v-col>
@@ -165,6 +188,7 @@
   
     data() {
       return {
+        dialog: false,
         testData : "",
         book: {}, 
         keyword : "",
@@ -180,7 +204,7 @@
         //         this.testData = response.data;
         //     });
         // },
-        onSubmit() {
+        onsubmit() {
             console.log(this.book);
 
             this.axios.post("/book/create", this.book)
@@ -263,13 +287,19 @@
     text-decoration: none;
 }
 .material-symbols-outlined {
-  font-variation-settings:
+  /* font-variation-settings:
   'FILL' 1,
   'wght' 200,
   'GRAD' 0,
   'opsz' 24;
   color: #D0ADF0;
-  font-size: 15px;
+  font-size: 15px; */
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 300,
+  'GRAD' 0,
+  'opsz' 24;
+  font-size: 30px;
 }
 .v-btn {
     color: #D0ADF0 !important;

@@ -203,7 +203,9 @@ public class BookServiceImpl implements BookService, CommonService {
 
             String bookId = element.attr("data-goods-no");
 
-            String bookDesc = getDetailBookInfoFromYes24(bookId);
+            Map<String, String> detailInfo = getDetailBookInfoFromYes24(bookId);
+            String bookDesc = detailInfo.get("desc");
+            String tag = detailInfo.get("tag");
 
             String title = element.select(".itemUnit .item_info .info_row.info_name .gd_name").text();
 
@@ -233,8 +235,9 @@ public class BookServiceImpl implements BookService, CommonService {
         return bookInfoList;
     }
 
-    public String getDetailBookInfoFromYes24(String bookId) throws IOException {
+    public Map<String,String> getDetailBookInfoFromYes24(String bookId) throws IOException {
         Document doc = Jsoup.connect("https://www.yes24.com/Product/Goods/"+bookId).timeout(10000).get();
+
         String detailDesc = doc.select("#infoset_introduce .txtContentText").html();
 
         String parsedDesc = detailDesc
@@ -244,7 +247,14 @@ public class BookServiceImpl implements BookService, CommonService {
         // 필요없는 내용들은 잘라낸다. (쓸데없는 태그가 딸려오는 것을 제외시키기 위함)
         String resultDesc = parsedDesc.split("<[^b|B|\\/][a-zA-Z]*")[0];
 
-        return resultDesc;
+        Element tagElement = doc.select("#infoset_goodsCate .infoSetCont_wrap").first();
+        String tag = tagElement.select(".yesAlertLi li a").get(1).text();
+
+        Map<String,String> detailInfo = new HashMap<>();
+        detailInfo.put("desc", resultDesc);
+        detailInfo.put("tag", tag);
+
+        return detailInfo;
     }
 //    @Override
 //    public BookSentencesDTO read(Long bookId) {

@@ -32,9 +32,9 @@ export default {
   /* color: #2c3e50; */
   color: #fff;
   margin: 80px;
-  display: flex;
+  /* display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: center; */
 }
 
 nav {
