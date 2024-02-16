@@ -1,6 +1,13 @@
 <template>
   <v-container class="w-50">
     <h1 class="mb-5">책 검색 {{ testData }}</h1>
+    <v-btn 
+                    class="material-symbols-outlined float-end" 
+                    style="position: absolute; right:30px; opacity: 1 !important; min-width: 0;" 
+                    variant="plain"
+                    @click="dialog = true"
+                  >add_circle  
+                  </v-btn>
     <v-row justify="center">
       <v-col>
         <v-text-field
@@ -16,9 +23,10 @@
           ></v-text-field>
         </v-col>
     </v-row>
-    <v-form id="bookInfoForm" @submit.prevent="onSubmit">
+    
     <v-row v-if="this.searchBook.length != 0">
-        <v-col cols="12" v-for="book in searchBook" :key="book">
+        <v-col cols="12" v-for="(book, index) in searchBook" :key="book">
+          <v-form id="bookInfoForm" @submit.prevent="openBookDetailModal(index)">
           <v-card
               color="#952175"
               theme="dark"
@@ -44,8 +52,8 @@
                     class="material-symbols-outlined float-end" 
                     style="position: absolute; right:30px; opacity: 1 !important; min-width: 0;" 
                     variant="plain"
-                    @click="dialog = true"
-                  >add_circle  
+                    type="submit"
+                  >add_circle
                   </v-btn>
                 </v-card-title>
 
@@ -66,78 +74,57 @@
             </div>
           </div>
         </v-card>
+        </v-form>
         </v-col>
     </v-row>
-  </v-form>
   </v-container>
 
+
+
+
+
   <v-dialog v-model="dialog" width="500">
-      <v-card theme="dark">
-        <v-card-text>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        </v-card-text>
+      <v-card theme="dark" style="background-color: black; padding:3rem;">
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" block @click="dialog = false">Close Dialog</v-btn>
-        </v-card-actions>
-      </v-card>
-  </v-dialog>
-
-    <!-- <v-sheet>
-      <v-row>
-          <v-col>
-            <v-text-field
-                v-model="keyword"
-                :rules="nameRules"
-                :counter="20"
-                label="책 검색"
-                clear-icon="mdi mdi-close"
-                clearable
-                required
-              ></v-text-field>
-            </v-col>
-            <v-col cols="1">
-              <v-btn-alt
-                    @click="searchBookInfo"
-                    rel="noopener noreferrer"
-                    text="검색"
-              />
-            </v-col>
-        </v-row>
-      </v-sheet> -->
-      <!-- <v-form id="bookInfoForm" @submit.prevent="onSubmit"> -->
-        <!-- <v-checkbox 
-            v-model="book.favoriteFlag"
-            label="즐겨찾기"
-            color="orange"
-        ></v-checkbox> -->
-
-        <!-- <v-text-field
+        <v-text-field
             v-model="book.title"
+            variant="plain"
             :rules="nameRules"
             :counter="20"
-            label="제목"
             clear-icon="mdi mdi-close"
             clearable
             required
-        ></v-text-field>
+            single-line
+            hide-details
+            :readonly="isReadOnly"
+            @click="isReadOnly = false"
+            style="align-items: center;"
+        >{{ this.detailBook.title }}</v-text-field>
 
         <v-text-field
             v-model="book.author"
+            variant="solo"
             :rules="nameRules"
             :counter="10"
             label="저자"
             clear-icon="mdi mdi-close"
             clearable
             required
+            :readonly="isReadOnly"
+            @click="isReadOnly = false"
         ></v-text-field>
 
         <v-combobox
-            label="장르"
-            v-model="book.genre"
-            :items="['자기계발', '인문학', '에세이', '소설']"
+            v-model="book.author"
+            variant="solo"
+            :rules="nameRules"
+            :counter="10"
+            label="분류"
+            clear-icon="mdi mdi-close"
+            clearable
             required
+            :readonly="isReadOnly"
+            @click="isReadOnly = false"
         ></v-combobox>
         
         <v-container class="d-flex">
@@ -160,26 +147,34 @@
 
         <v-text-field
             v-model="book.rating"
+            variant="solo"
             type="number"
             min="1" max="5" step="0.1"
             label="평점"
         ></v-text-field>
 
         <v-textarea
+            rows="2"
             v-model="book.review"
+            variant="solo"
             label="한줄평"
             :counter="100"
         ></v-textarea>
 
-        <v-textarea
+        <!-- <v-textarea
             v-model="book.memo"
+            variant="solo"
             label="메모"
             :counter="100"
-        ></v-textarea>
+        ></v-textarea> -->
+
+        <v-card-actions style="padding:1rem;">
+          <v-spacer></v-spacer>
+          <v-btn color="primary" block @click="dialog = false">Close Dialog</v-btn>
+        </v-card-actions>
+      </v-card>
+  </v-dialog>
   
-        <v-btn type="submit" block class="mt-2 float-end" color="#2c3e50">등록</v-btn> 
-      </v-form> -->
-  <!-- </v-main> -->
 </template>
   
 <script>
@@ -193,11 +188,14 @@
         book: {}, 
         keyword : "",
         searchBook : {},
+        isReadOnly: true,
+        detailBook : {},
       };
     },
-    // mounted() {
-    //     this.get();
-    // },
+    mounted() {
+      // 초기에는 입력란이 읽기 전용 상태로 시작
+      this.isReadOnly = true;
+    },
     methods: {
         // get() {
         //     this.axios.get("/book/test").then((response) => {
@@ -205,16 +203,17 @@
         //     });
         // },
         onsubmit() {
-            console.log(this.book);
+          console.log(this.book);
+            // console.log(this.book);
 
-            this.axios.post("/book/create", this.book)
-            .then((response) => {
-                this.book = response.data;
+            // this.axios.post("/book/create", this.book)
+            // .then((response) => {
+            //     this.book = response.data;
 
-                this.$router.push({
-                    path: "/book/detail/"+this.book.bookId,
-                });
-            });
+            //     this.$router.push({
+            //         path: "/book/detail/"+this.book.bookId,
+            //     });
+            // });
         },
         searchBookInfo() {
           this.axios.post("/book/search/yes24/"+this.keyword)
@@ -232,6 +231,10 @@
               
               this.searchBook = res.data;
           })
+        },
+        openBookDetailModal(index) {
+          this.dialog = true;
+          this.detailBook = this.searchBook[index];
         }
     },
   };

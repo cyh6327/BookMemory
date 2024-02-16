@@ -37,6 +37,12 @@ export default {
   align-items: center; */
 }
 
+.v-dialog {
+  font-family: GowunDodum, Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 nav {
   padding: 30px;
 }
